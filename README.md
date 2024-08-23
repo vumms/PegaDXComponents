@@ -19,3 +19,8 @@ Ensure you have access to the following in your system:
 ## Latest Documentation
 
 Find the latest documentation on using **DX Component Builder** [here](https://docs.pega.com/bundle/constellation-dx-components/page/constellation-dx-components/custom-components/whats-new-constellation-dx-components-pega-infinity-23.html)
+
+
+## Custom DX components
+
+The code available in this Git is part of Siva's local DX custom component projects for testing and proof of concept.
