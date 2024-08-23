@@ -52,18 +52,18 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
             MUI Editable customer list 
         </Text>                
         <MUIEditableCustomerList dataPageProp={dataPage} pConnectProp={getPConnect}/>
-        {/* MUI Simple table https://mui.com/x/react-data-grid/ */}
+        {/* Uncomment below block to test MUI Simple table https://mui.com/x/react-data-grid/ */}
         {/* <Text variant='h2' status={undefined}>
             MUI Simple table (@mui/x-data-grid)
         </Text>                
         <MUISimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/>
         <br/> */}
-        {/* MUI Editable Simple table https://mui.com/x/react-data-grid/recipes-editing/#system-EditingWithDatePickers.tsx */}
+        {/* Uncomment below block to test MUI Editable Simple table https://mui.com/x/react-data-grid/recipes-editing/#system-EditingWithDatePickers.tsx */}
        {/*  <Text variant='h2' status={undefined}>
             MUI Editable simple table (@mui/x-data-grid)
         </Text>                
         <MUIEditableSimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
-        {/* MUI Complex table https://mui.com/x/react-data-grid/ */}
+        {/*Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/ */}
         {/* <br/>
         <Text variant='h2' status={undefined}>
             MUI Complex table (@mui/x-data-grid-premium)
