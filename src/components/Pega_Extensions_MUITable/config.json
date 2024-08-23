@@ -1,0 +1,32 @@
+{
+  "name": "Pega_Extensions_MUITable",
+  "label": "Material UI Table testing V2",
+  "description": "Material UI testing V2",
+  "organization": "Pega",
+  "version": "1.0.0",
+  "library": "Extensions",
+  "allowedApplications": [],
+  "componentKey": "Pega_Extensions_MUITable",
+  "type": "Template",
+  "subtype": "FORM",
+  "icon": "OneColumnDetails.svg",
+  "properties": [
+    {
+      "name": "heading",
+      "label": "Label",
+      "format": "TEXT"
+    },
+    {      
+      "name": "dataPage",
+      "label": "Choose Data Page",
+      "format": "TEXT"
+    },
+    {
+      "name": "A",
+      "label": "Region A",
+      "format": "CONTENTPICKER",
+      "addTypeList": ["Fields", "Views"],
+      "allowCreatingGroup": true
+    }
+  ]
+}
