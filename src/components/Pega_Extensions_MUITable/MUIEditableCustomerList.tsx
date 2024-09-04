@@ -89,17 +89,33 @@ export default function MUIEditableCustomerList(props: Props) {
       /* const rowIndex = getSelectedRowIndex(customerTableData, newRow.id); */
       const selectedRowIndex = customerTableData.findIndex((row: any) => row.id === newRow.id)
       console.log("RowIndex=", selectedRowIndex);
-      // Make the HTTP request to save in the backend            
-      const PCore = (window as any).PCore;
       const customerObject = `CustomerList2[${selectedRowIndex}]`;
-      console.log("CustomerObject with index=", customerObject, typeof(customerObject));
+      console.log("CustomerObject with index=", customerObject);
+      const cPageReference = `${pConnectProp().getPageReference()}.${customerObject}`;
+      console.log("Page reference=", cPageReference);
+      // Make the HTTP request to save in the backend    
+      
+      // Use the below code as workaround to bypass the bug in the product
+      pConnectProp()._pageReference = cPageReference;
+
+      /* pConnectProp().getActionsApi().updateFieldValue('.FirstName', 'test edited', 
+        {pageReference:`${pConnectProp().getPageReference()}.${customerObject}`, isArrayDeepMerge: true}); */
+        pConnectProp().getActionsApi().updateFieldValue('.FirstName', newRow.FirstName, 
+          {
+            removePropertyFromChangedList: false,
+            /* contextPageReference: `${pConnectProp().getPageReference()}.${customerObject}`, */
+            skipDirtyValidation: false
+          }  );
+            
+
+      /* const PCore = (window as any).PCore;
       PCore.getStateUtils().updateState(pConnectProp().getContextName(), 
         customerObject, {
               FirstName: newRow.FirstName, 
               LastName: newRow.LastName,
               DateOfBirth: newRow.DataOfBirth
         }, 
-        {pageReference:pConnectProp().getPageReference(), isArrayDeepMerge: true}); 
+        {pageReference:pConnectProp().getPageReference(), isArrayDeepMerge: true});  */
       return newRow;
     },
     [customerTableData, pConnectProp],

@@ -1,0 +1,32 @@
+{
+  "name": "Pega_Extensions_ImageGallery",
+  "label": "Display image gallery",
+  "description": "Display image as gallery",
+  "organization": "Pega",
+  "version": "1.0.0",
+  "library": "Extensions",
+  "allowedApplications": [],
+  "componentKey": "Pega_Extensions_ImageGallery",
+  "type": "Template",
+  "subtype": "FORM",
+  "icon": "TwoColumnDetails.svg",
+  "properties": [
+    {
+      "name": "heading",
+      "label": "Label",
+      "format": "TEXT"
+    },
+    {      
+      "name": "dataPage",
+      "label": "Choose Data Page",
+      "format": "TEXT"
+    },
+    {
+      "name": "A",
+      "label": "Region A",
+      "format": "CONTENTPICKER",
+      "addTypeList": ["Fields", "Views"],
+      "allowCreatingGroup": true
+    }
+  ]
+}

@@ -63,7 +63,7 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
             MUI Editable simple table (@mui/x-data-grid)
         </Text>                
         <MUIEditableSimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
-        {/*Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/ */}
+        {/* Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/ */}
         {/* <br/>
         <Text variant='h2' status={undefined}>
             MUI Complex table (@mui/x-data-grid-premium)

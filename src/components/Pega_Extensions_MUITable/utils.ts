@@ -65,9 +65,10 @@ export const inspectCaseSummaryAndReturnList = async (pConn: any, paramDataPage:
     console.log(paramDataPage);
 
     try {
-        const caseSummaryObj = pConn().getCaseSummary();
-        const caseSummaryContentObj = caseSummaryObj.content;
-        console.log(caseSummaryContentObj);
+        /* const listDataObject = `.{paramDataPage}`; */
+        /* const caseSummaryObj = pConn().getCaseSummary();
+        const caseSummaryContentObj = caseSummaryObj.content; */
+        console.log("listDataObject=", paramDataPage);
 
         /* const arrayOfCustomerList = caseSummaryContentObj.find((content: any) => content[0] === tempListName);
         console.log(arrayOfCustomerList);
@@ -75,7 +76,9 @@ export const inspectCaseSummaryAndReturnList = async (pConn: any, paramDataPage:
         const arrList: any = [];
         arrayOfCustomerList.map((customerList :any) => ( arrList.push(customerList)));
         console.log(arrList); */
-        const arrayOfCustomerList = caseSummaryContentObj.CustomerList2;
+        // e.g. to get CustomerList1 object values -> pConn().getValue(".CustomerList2")
+        const arrayOfCustomerList = pConn().getValue(paramDataPage);
+        // const arrayOfCustomerList = caseSummaryContentObj.CustomerList2;
 
         const rowArray: any = [];
         arrayOfCustomerList.map((listitem: any) => ( 
