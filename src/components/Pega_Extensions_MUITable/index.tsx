@@ -50,7 +50,8 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
          {/* MUI Editable Customer list */}
          <Text variant='h2' status={undefined}>
             MUI Editable customer list 
-        </Text>                
+        </Text>    
+        {/* testing Adding comments here to test check in */}            
         <MUIEditableCustomerList dataPageProp={dataPage} pConnectProp={getPConnect}/>
         {/* Uncomment below block to test MUI Simple table https://mui.com/x/react-data-grid/ */}
         {/* <Text variant='h2' status={undefined}>
