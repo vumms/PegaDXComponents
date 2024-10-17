@@ -1,0 +1,70 @@
+{
+  "name": "Pega_Extensions_NotesHistory",
+  "label": "Notes History",
+  "description": "Displays notes left as well as allows to create new notes",
+  "organization": "Pega",
+  "version": "1.0.0",
+  "library": "Extensions",
+  "allowedApplications": [],
+  "componentKey": "Pega_Extensions_NotesHistory",
+  "type": "Widget",
+  "subtype": ["PAGE", "CASE"],
+  "icon": "OneColumnPage.svg",
+  "properties": [
+    {
+      "name": "title",
+      "label": "Component Title",
+      "format": "TEXT"
+    },
+    {
+      "name": "dataNotesHeaders",
+      "label": "Table Column Header Data Page",
+      "format": "TEXT"
+    },
+    {
+      "name": "dataNotesHistory",
+      "label": "Table Content Data Page",
+      "format": "TEXT"
+    },
+    {
+      "name": "buttonText",
+      "label": "Add Note Button Text",
+      "format": "TEXT",
+      "default": "Add Note"
+    },
+    {
+      "name": "modalTitle",
+      "label": "Modal Title",
+      "format": "TEXT",
+      "default": "Add Note"
+    },
+    {
+      "name": "centerModal",
+      "label": "Center Modal",
+      "format": "BOOLEAN",
+      "default": true
+    },
+    {
+      "name": "columnsToHide",
+      "label": "Columns to Hide",
+      "format": "TEXT"
+    },
+    {
+      "name": "modalFields",
+      "label": "Modal Fields",
+      "format": "TEXT"
+    }
+  ],
+  "defaultConfig": {
+    "title": "Notes",
+    "createLabel": "@L Created",
+    "updateLabel": "@L Updated",
+    "createOperator": "@USER .pxCreateOperator",
+    "updateOperator": "@USER .pxUpdateOperator",
+    "createDateTime": "@P .pxCreateDateTime",
+    "updateDateTime": "@P .pxUpdateDateTime",
+    "resolveLabel": "@L Resolved",
+    "resolveOperator": "@USER .pyResolvedUserID",
+    "resolveDateTime": "@P .pyResolvedTimestamp"
+  }
+}

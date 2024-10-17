@@ -1,0 +1,1 @@
+{"version":3,"file":"MUIMandatoryCell.d.ts","sourceRoot":"","sources":["../../../src/components/Pega_Extensions_MUITable/MUIMandatoryCell.tsx"],"names":[],"mappings":"AA2CA,KAAK,KAAK,GAAG;IACT,YAAY,EAAE,GAAG,CAAC;IAClB,YAAY,CAAC,EAAE,MAAM,CAAC;IACtB,iBAAiB,CAAC,EAAE,MAAM,CAAC;IAC3B,kBAAkB,EAAE,MAAM,CAAC;CAC9B,CAAA;AAED,MAAM,CAAC,OAAO,UAAU,gBAAgB,CAAC,KAAK,EAAE,KAAK,2CAwNpD"}
