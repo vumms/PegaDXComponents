@@ -3,13 +3,16 @@
 import PropTypes from 'prop-types';
 import { Text, FieldGroup, Grid, withConfiguration, Banner } from '@pega/cosmos-react-core';
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 // Import two custom React components
 import MUISimpleTable from './MUISimpleTable';
 import MUIComplexTable from './MUIComplexTable';
 import MUIEditableSimpleTable from './MUIEditableSimpleTable';
 import MUIEditableCustomerList from './MUIEditableCustomerList';
+import MUIMandatoryCell from './MUIMandatoryCell';
+import MUIEmbeddedData from './MUIEmbeddedData';
+import MUIMasterDetailTable from './MUIMasterDetailTable';
 import { StyledGridContainer } from './styles';
 
 // Define the props 
@@ -18,7 +21,10 @@ type PegaComponentsMUITableProps = {
   NumCols: string;
   children: any;
   dataPage: string;
+  embedDataPage: string;
   getPConnect: any;
+  paginationSize: string;  
+  prefill: any;
 };
 
 // This props passed in combination of props from property panel (config.json) and run time props from Constellation
@@ -28,7 +34,10 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
           NumCols, 
           children, 
           dataPage,
-          getPConnect
+          embedDataPage,
+          getPConnect,
+          paginationSize,  
+          prefill,        
         } = props;            
 
   const nCols = parseInt(NumCols, 10);
@@ -47,29 +56,47 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
 
         </Grid>
         <br/>
-         {/* MUI Editable Customer list */}
-         <Text variant='h2' status={undefined}>
-            MUI Editable customer list 
-        </Text>    
-        {/* testing Adding comments here to test check in */}            
-        <MUIEditableCustomerList dataPageProp={dataPage} pConnectProp={getPConnect}/>
-        {/* Uncomment below block to test MUI Simple table https://mui.com/x/react-data-grid/ */}
-        {/* <Text variant='h2' status={undefined}>
-            MUI Simple table (@mui/x-data-grid)
-        </Text>                
-        <MUISimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/>
-        <br/> */}
-        {/* Uncomment below block to test MUI Editable Simple table https://mui.com/x/react-data-grid/recipes-editing/#system-EditingWithDatePickers.tsx */}
-       {/*  <Text variant='h2' status={undefined}>
-            MUI Editable simple table (@mui/x-data-grid)
-        </Text>                
-        <MUIEditableSimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
-        {/* Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/ */}
-        {/* <br/>
-        <Text variant='h2' status={undefined}>
-            MUI Complex table (@mui/x-data-grid-premium)
-        </Text>
-        <MUIComplexTable/> */}
+        <Fragment>
+            {/* MUI Editable Customer list just a test */}
+            {/* <Text variant='h2' status={undefined}>
+                MUI Editable customer list 
+            </Text>   */}  
+            {/* testing Adding comments here to test check in */}            
+            {/* <MUIEditableCustomerList dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
+            {/* Uncomment below block to test MUI Simple table https://mui.com/x/react-data-grid/ */}
+            {/* <Text variant='h2' status={undefined}>
+                MUI Simple table (@mui/x-data-grid)
+            </Text>                
+            <MUISimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/>
+            <br/> */}
+            {/* Uncomment below block to test MUI Editable Simple table https://mui.com/x/react-data-grid/recipes-editing/#system-EditingWithDatePickers.tsx */}
+          {/*  <Text variant='h2' status={undefined}>
+                MUI Editable simple table (@mui/x-data-grid)
+            </Text>                
+            <MUIEditableSimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
+            {/* Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/ */}
+            {/* <br/>
+            <Text variant='h2' status={undefined}>
+                MUI Complex table (@mui/x-data-grid-premium)
+            </Text>
+            <MUIComplexTable/> */}
+            {/* Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/recipes-editing/#conditional-validation */}
+            <br/>
+            {/* <Text variant='h2' status={undefined}>
+                MUI Table using data reference (Directly reading from DataPage)  
+            </Text>
+            <MUIMandatoryCell pConnectProp={getPConnect} dataPageProp={dataPage} paginationSizeProp={paginationSize} />
+            <br/><br/> */}
+            <Text variant='h2' status={undefined}>
+                MUI Table using Embedded data (Reading from embedded page list) 
+            </Text>
+            <MUIEmbeddedData pConnectProp={getPConnect} embedDataPageProp={embedDataPage} paginationSizeProp={paginationSize} />
+            <br/><br/>
+            <Text variant='h2' status={undefined}>
+                MUI Master details testing table 
+            </Text>
+            <MUIMasterDetailTable pConnectProp={getPConnect} dataPageProp={dataPage} paginationSizeProp={paginationSize}/>
+        </Fragment>
     </FieldGroup>
   );
 }

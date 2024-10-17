@@ -103,6 +103,65 @@ export const inspectCaseSummaryAndReturnList = async (pConn: any, paramDataPage:
     }
 }
 
+/* Function to lookup embedded data for Disbursement Object and retrieve list objects in an array */
+export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedName: string ) => {
+
+    try {
+        const caseSummaryObj = paramPConn().getCaseSummary();
+        const caseSummaryContentObj = caseSummaryObj.content;    
+        console.log(caseSummaryContentObj);   
+        /* const embedDataPageList =  `${caseSummaryObj.content}.${paramEmbedName}`;
+        console.log(embedDataPageList);   */
+        // e.g. to get CustomerList object values -> pConn().getValue(".DJCSEmbedPage")
+        const arrayOfEmbeddedList = paramPConn().getValue(`.${paramEmbedName}`);
+        // const cPageReference = `${pConnectProp().getPageReference()}.${disbursementObject}`;
+        const rowArray: any = [];        
+        arrayOfEmbeddedList?.map((listitem: any) => ( 
+            rowArray.push({
+                id: listitem['EmbedListUUID__'],
+                bty: listitem['BeneficiaryType'],
+                bnam: listitem['BeneficiaryName'],
+                bid: listitem['BeneficiaryID'],
+                amt: listitem['Amount'],
+                type: listitem['Type'],
+                did: listitem['DisbursementID'],
+                bsts: 'Fixed-Reissue',
+                isAccepted: true,
+                comments: listitem['Comment'],
+            })
+            )
+        );
+        console.log(rowArray);     
+        return(rowArray);
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+/* Function to read disbursement datapage results and put them in a row array for Table component to render */
+/* sample array format {id: 1, bty: 'Debtor refunds', bnam: 'Virgel', bid: '9988768789', amt: 100.00,
+    type: 'Irregular', did: '2345',bsts: 'Fixed-Reissue',  isAccepted: true, comments: '', */
+export const getDisbursementDataAsRowData = (dataPageResults: []) => {
+    const rowArray: any = [];
+    dataPageResults.map(arrayData => (   
+        rowArray.push({                     
+            id: randomId(),
+            bty: arrayData['BeneficiaryType'],
+            bnam: arrayData['BeneficiaryName'],
+            bid: arrayData['BeneficiaryID'],
+            amt: arrayData['Amount'],
+            type: arrayData['Type'],
+            did: arrayData['DisbursementID'],
+            bsts: 'Fixed-Reissue',
+            isAccepted: true,
+            comments: arrayData['Comment'],
+        })
+    ))
+    console.log(rowArray); 
+    return rowArray;
+}
+
 export const getSelectedRowIndex = async (customerTableData: any, rowId: string ) => {
     /* const caseSummaryObj = pConn().getCaseSummary();
     const caseSummaryContentObj = caseSummaryObj.content;

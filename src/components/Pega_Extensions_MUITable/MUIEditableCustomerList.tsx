@@ -95,7 +95,7 @@ export default function MUIEditableCustomerList(props: Props) {
       console.log("Page reference=", cPageReference);
       // Make the HTTP request to save in the backend    
       
-      // Use the below code as workaround to bypass the bug in the product
+      // Use the below code as workaround to bypass the bug in the product, INC to be raised
       pConnectProp()._pageReference = cPageReference;
 
       /* pConnectProp().getActionsApi().updateFieldValue('.FirstName', 'test edited', 
