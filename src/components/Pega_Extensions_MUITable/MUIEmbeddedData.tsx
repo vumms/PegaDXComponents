@@ -1,22 +1,26 @@
 // @ts-nocheck
 /* eslint-disable react/jsx-no-useless-fragment */
 import {
- /*  DataGrid, */
   GridColDef,
   GridRowsProp,
-  GridCellParams,
   GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { DataGridPro, 
   DataGridProProps } from '@mui/x-data-grid-pro';
-import { Input, 
+import { 
   Button, 
-  Flex,
-  Modal, 
+  Flex,  
+  RadioButtonGroup,
+  RadioButton,
+  Modal,   
   Card,
   CardContent, 
   TextArea, 
+  /* Table, */
   Checkbox } from '@pega/cosmos-react-core';
+/*   import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack'; */
 
 import React from 'react';
 import { useEffect, useState, useCallback } from "react";
@@ -53,19 +57,28 @@ const openModal = 'newNote';
 
 function DetailPanelContent({ row: rowProp }: { row: Orders }) {
   console.log(rowProp);
+  const detailColumns = [
+    { renderer: data => <b>{data.item}</b>, label: 'Breakdown item' },    
+    { renderer: 'amount', label: 'Amount' },    
+  ];
+  console.log(detailColumns);
   return (      
-    <Stack
-      sx={{ py: 2, height: '100%', boxSizing: 'border-box' }}
-      direction="column"
-    >
-      {/* First Order results child table */}
-      <Paper sx={{ flex: 1, mx: 'auto', width: '90%', p: 1 }}>
-        <Stack direction="column" spacing={1} sx={{ height: 1 }}>
-          <Typography variant="h6">Detail</Typography>
-              
-        </Stack>
-      </Paper>
-    </Stack>
+   /*  <Grid item={{ colStart: '1', colEnd: '-1' }}>
+        <Text>Field1: {rowProp.detailField1}</Text>
+        <Text>Field2: {rowProp.detailField2}</Text>
+        <Text>Field3: {rowProp.detailField3}</Text>
+        <Text>Field4: {rowProp.detailField4}</Text>
+        <Text>Field5: {rowProp.detailField5}</Text>
+    </Grid> */
+    
+    {/* <Table
+      title='Breakdown of amount'
+      hoverHighlight={false}
+      loading={false}
+      loadingMessage='Loading data'
+      data={false ? [] : rowProp.detailsData}
+      columns={detailColumns}
+    /> */}
   );
 }
 
@@ -83,7 +96,11 @@ export default function MUIEmbeddedData(props: Props) {
   const [cellModesModel, setCellModesModel] = useState<GridCellModesModel>({});
   const [tableClass, setTableClass] = useState('');  
   const [pageRef, setPageRef] = useState('');
-  const [formContent, setFormContent] = useState({ BulkUpdateCommentsField: '', CheckboxIdSelectedRows: '', CheckboxIdUnSelectedRows: ''});  
+  const [formContent, setFormContent] = useState({ BulkUpdateCommentsField: '', 
+                                                  CheckboxIdSelectedRows: '', 
+                                                  CheckboxIdUnSelectedRows: '',
+                                                  rbRowSelection: '',
+                                                });  
   const [showModal, setShowModal] = useState(false); // Modal dialog related state
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
@@ -91,12 +108,6 @@ export default function MUIEmbeddedData(props: Props) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormContent({ ...formContent, [event.target.id]: event.target.value });    
   };
-
-  //  Modal dialog window Checkbox selection event
-  /* const handleCheckBoxSelection = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormContent({ ...formContent, [event.target.id]: event.target.value });    
-  }; */
-  
 
   const modalVisibility = (action: string) => {
     console.log('View Note Action: ', action);    
@@ -106,7 +117,11 @@ export default function MUIEmbeddedData(props: Props) {
       console.log('Show Form Content: ', formContent);
     }
     if (action === closeModal) {
-      setFormContent({ BulkUpdateCommentsField: '', CheckboxIdSelectedRows: '', CheckboxIdUnSelectedRows: '' });
+      setFormContent({ BulkUpdateCommentsField: '', 
+        CheckboxIdSelectedRows: '', 
+        CheckboxIdUnSelectedRows: '',  
+        rbRowSelection: ''
+       });
       setShowModal(false);
       console.log('Hide Form Content: ', formContent);
     }
@@ -132,13 +147,13 @@ export default function MUIEmbeddedData(props: Props) {
   }
 
   const columns: GridColDef[] = [
-    {
+    /* {
       field: 'isAccepted',
       headerName: 'Is Authorized?',
       type: 'boolean',
       width: 120,
       editable: true,
-    },
+    }, */
     {
       field: 'comments',
       headerName: 'Comments',
@@ -168,74 +183,18 @@ export default function MUIEmbeddedData(props: Props) {
     { field: 'bsts', headerName: 'Status', width: 120, editable: false },                    
   ];
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const handleCellClick = useCallback(
-    (params: GridCellParams, event: React.MouseEvent) => {
-      // Check if its editable field      
-      if (!params.isEditable) {
-        console.log("non editable column is clicked, ignoring click handling....")
-        return;
-      }
-      /* If checkbox is unselected by user, then comments field should show error indicator to be mandatory */
-      /* if(params.field === '__check__' && params.formattedValue === 'yes') {        
-        return { ...params.row.comments, error: true };
-      } */
-      // Check if the value has changed only then proceed to update the embed page
-      if(event.target.value !== undefined) {
-        console.log(event);
-        const rSelected = params.row;
-        const rId = params.row.id;
-        const rField = params.field; 
-        const rFieldValue = event.target.value;
-        const indexOfRow = disbursementTableData.findIndex(obj => obj.id === rId);
-        console.log(rSelected, rId, rField, rFieldValue, indexOfRow);
-  
-        // updateComments(indexOfRow, rFieldValue);
-      }
-      
-      
-      /* TODO : Call a function to update the comments inline edit */
-      /* const disbursementObject = `${embedDataPageProp}[1]`;
-      const cPageReference = `${pConnectProp().getPageReference()}.${disbursementObject}`;
-      console.log("Page reference=", cPageReference);
-      // Use the below code as workaround to bypass the bug in the product, INC to be raised
-      pConnectProp()._pageReference = cPageReference;
-      pConnectProp().getActionsApi().updateFieldValue('.comments', params.formattedValue, 
-      {
-        removePropertyFromChangedList: false,
-        skipDirtyValidation: false
-      }); */
-    },    
-    /* // eslint-disable-next-line react-hooks/exhaustive-deps */
-    [disbursementTableData],
-  );  
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-  
+  // Fetch embedded data from the case summary content
   const refreshTableData = () => {      
     getDisbursementEmbeddedData(pConnectProp, embedDataPageProp).then(data => {                  
       setDisbursementTableData(data);
     }); 
   }
 
-  const updateStore = (rowsToUpdate) => {    
-    rowsToUpdate.forEach((row) => {
-      console.log(row);
-      const newCommentValue = row.comments;
-      const rowId = row.id;
-      const embeddedRowToBeUpdated = disbursementTableData.find((mainTableRow) => mainTableRow.id === rowId);
-      const indexOfRow = disbursementTableData.findIndex(obj => obj.id === rowId);
-      console.log(newCommentValue);
-      console.log(rowId);
-      console.log(embeddedRowToBeUpdated);
-      updateComments(indexOfRow, newCommentValue);
-    });
-  }
-
   useEffect(() => {
-    /* Retrieve embedded list of data page only once for the first time  */
-    if(!disbursementTableData) {
-      refreshTableData();
-    }
+    /* TODO: Do I need to check if the table is empty or can I load the data
+        Retrieve embedded list of data page only once for the first time  */
+    refreshTableData();
+    
     
     // Set the page reference only once if its empty or undefined  
     if(!pageRef) {
@@ -255,20 +214,17 @@ export default function MUIEmbeddedData(props: Props) {
     return (unSelectedRowsData);
   }
 
-  const bulkUpdateSelectedRows = () => {
-    const selectedRowsData = getSelectedRows();
-    console.log(selectedRowsData);
-    updateStore(selectedRowsData);
-  }
-
   const bulkUpdateAllRows = () => {
     // Read all the modal form data
     const commentsToUpdate = formContent.BulkUpdateCommentsField;
     const checkBoxSelectedState = formContent.CheckboxIdSelectedRows;
     const checkBoxUnSelectedState = formContent.CheckboxIdUnSelectedRows;
+    const rbRowSelectionState = formContent.rbRowSelection;
+
     console.log(commentsToUpdate);
     console.log(checkBoxSelectedState);
     console.log(checkBoxUnSelectedState);    
+     console.log(rbRowSelectionState);     
 
     // Default selection is all table rows
     let rowsToBeUpdated = disbursementTableData;
@@ -281,7 +237,18 @@ export default function MUIEmbeddedData(props: Props) {
     if(checkBoxSelectedState === 'on' && checkBoxUnSelectedState === 'on') {
       rowsToBeUpdated = disbursementTableData;
     }
+    // Radio button selection 
+    /* if(formContent.rbAllRows === 'on') {
+      rowsToBeUpdated = disbursementTableData;
+    }  */
+    if(formContent.rbSelRows === 'on') {
+      rowsToBeUpdated = getSelectedRows();
+    } 
+    if(formContent.rbUnSelRows === 'on') {
+      rowsToBeUpdated = getUnSelectedRows();
+    } 
 
+    // Update the comments to all the rows
     rowsToBeUpdated.forEach((row) => {
       console.log(row);
       const newCommentValue = commentsToUpdate;
@@ -297,129 +264,101 @@ export default function MUIEmbeddedData(props: Props) {
   }
 
   const bulkUpdateFromModal = () => {
-    // TODO retrieve selection checkbox for unselected or selected rows    
     bulkUpdateAllRows();
     modalVisibility(closeModal); // Close the modal dialog after the update
   }
-
-  
-  const bulkUpdateUnSelectedRows = () => {  
-    const unSelectedRowsData = getUnSelectedRows();
-    console.log(unSelectedRowsData);
-  }
-
-  /* const bulkUpdateInModal = () => {  
-    // TODO modal dialog 
-  } */
-  /* const handleCellModesModelChange = useCallback(
-    (newModel: GridCellModesModel) => {
-      setCellModesModel(newModel);
-    },
-    [],
-  ); */
-  
+ 
   const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetailPanelContent']>>(({ row }) => <DetailPanelContent row={row} />, []);
 
   return (
     <>
         <div style={{ height: 400, width: '100%' }}>
         <StyledBox>
-            <Flex container={{ direction: 'row' }}>
-              <Button variant='secondary' onClick={bulkUpdateSelectedRows}>Bulk update selected rows</Button>
-              <Input                  
-                  id='BulkUpdateCommentsField'
-                  type='text'
-                  label='Comments'
-                  labelHidden={false}                  
-                  placeholder='Enter comments here for bulk update'
-                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                    handleInputChange(e)
-                  }
-                  defaultValue={formContent.BulkUpdateComments}
-                  status={undefined}
-                  required={false}
-                  disabled={false}
-                  readOnly={false}                  
-                />
-                <Button variant='primary' onClick={bulkUpdateAllRows}>Bulk update</Button>
-                <Button variant='secondary' onClick={bulkUpdateUnSelectedRows}>Bulk update Unselected rows</Button>
+            <Flex container={{ direction: 'row' }}>                                       
                 <Button variant='secondary' onClick={refreshTableData}>Refresh embedded data</Button> 
-                <Button variant='secondary' onClick={() => {                            
+                <Button variant='primary' onClick={() => {                            
                             modalVisibility(openModal);
                           }} >Bulk update modal</Button>    
             </Flex>
-          <DataGridPro 
-            rows={disbursementTableData} 
-            columns={columns}           
-            checkboxSelection 
-            disableRowSelectionOnClick
-            getDetailPanelHeight={() => 'auto'}
-            getDetailPanelContent={getDetailPanelContent}
-            /* onCellModesModelChange={handleCellModesModelChange} */
-            /* onCellClick={handleCellClick}  */
-            onCellEditStop={(params: GridCellEditStopParams, event: MuiEvent) => {
-              const activeSelectedRow = params.row;
-              const activeSelectedRowId = params.row.id;
-              const activeSelectedRowComment = event.target.value;
-              const indexOfRow = disbursementTableData.findIndex(obj => obj.id === activeSelectedRowId);
-              console.log(activeSelectedRow, activeSelectedRowId, activeSelectedRowComment, indexOfRow);
-              updateComments(indexOfRow, activeSelectedRowComment);
-              /* if (params.reason === GridCellEditStopReasons.cellFocusOut) {
-                event.defaultMuiPrevented = true;
-              } */
-            }}   
-            onRowSelectionModelChange={(newRowSelectionModel) => {
-              setRowSelectionModel(newRowSelectionModel);
-              console.log(rowSelectionModel);
-            }}                            
-            rowSelectionModel={rowSelectionModel}
-          />
-          {showModal && (
-            <Modal              
-              heading="Bulk update modal dialog"
-              onRequestDismiss={() => modalVisibility(closeModal)}
-            >
-              <Card>
-                <CardContent>
-                  <form>                    
-                    <TextArea
-                      label='Enter comments for bulk update'
-                      name='bulkUpdateCommentsField'                      
-                      defaultValue={formContent.BulkUpdateCommentsField}
-                      id="BulkUpdateCommentsField"
-                      required='true'     
-                      resizable='true'                                                             
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                        handleInputChange(e)
-                      }
-                    />
-                    <Checkbox           
-                        id="CheckboxIdSelectedRows"             
-                        info='Select this to update only for selected rows'                        
-                        label='Selected rows only'   
+            <DataGridPro 
+              rows={disbursementTableData} 
+              columns={columns}           
+              checkboxSelection 
+              disableRowSelectionOnClick
+              getDetailPanelHeight={() => 'auto'}
+              getDetailPanelContent={getDetailPanelContent}
+              onCellEditStop={(params: GridCellEditStopParams, event: MuiEvent) => {
+                const activeSelectedRow = params.row;
+                const activeSelectedRowId = params.row.id;
+                const activeSelectedRowComment = event.target.value;
+                const indexOfRow = disbursementTableData.findIndex(obj => obj.id === activeSelectedRowId);
+                console.log(activeSelectedRow, activeSelectedRowId, activeSelectedRowComment, indexOfRow);
+                updateComments(indexOfRow, activeSelectedRowComment);
+              }}   
+              onRowSelectionModelChange={(newRowSelectionModel) => {
+                setRowSelectionModel(newRowSelectionModel);
+                console.log(rowSelectionModel);
+              }}                            
+              rowSelectionModel={rowSelectionModel}
+            />
+            {showModal && (
+              <Modal              
+                heading="Bulk update modal dialog"
+                onRequestDismiss={() => modalVisibility(closeModal)}
+              >
+                <Card>
+                  <CardContent>
+                    <form>                    
+                      <TextArea
+                        label='Enter comments for bulk update'
+                        name='bulkUpdateCommentsField'                      
+                        defaultValue={formContent.BulkUpdateCommentsField}
+                        id="BulkUpdateCommentsField"
+                        required='true'     
+                        resizable='true'                                                             
                         onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                           handleInputChange(e)
-                        }                                             
-                      />
+                        }
+                      />                      
+                      <RadioButtonGroup                        
+                        label='Select one to bulk update comments?'
+                        name='typeOfUpdate'                                                                                                                        
+                        info='Select one of the above item to update the comments'
+                        onClick={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                          handleInputChange(e)
+                        }                               
+                      >
+                        <RadioButton label='All rows' id='rbAllRows' defaultChecked />
+                        <RadioButton label='Selected rows' id='rbSelRows' />
+                        <RadioButton label='Un-Selected rows' id='rbUnSelRows' />
+                      </RadioButtonGroup>
                       <Checkbox           
-                        id="CheckboxIdUnSelectedRows"             
-                        info='Select this to update only for un-selected rows'                        
-                        label='Un-Selected rows only'   
-                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                          handleInputChange(e)
-                        }                                                         
-                      />
-                    <Button variant='secondary' onClick={() => { 
-                        bulkUpdateFromModal();                                                   
-                      }} >Update</Button>  
-                    <Button variant='secondary' onClick={() => {                                                    
-                        modalVisibility(closeModal);
-                      }} >Close</Button>  
-                  </form>
-                </CardContent>
-              </Card>
-            </Modal>
-          )}             
+                          id="CheckboxIdSelectedRows"             
+                          info='Select this option to update only for selected rows'                        
+                          label='Selected rows only'   
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                            handleInputChange(e)
+                          }                                             
+                        />
+                        <Checkbox           
+                          id="CheckboxIdUnSelectedRows"             
+                          info='Select this option to update only for un-selected rows'                        
+                          label='Un-Selected rows only'   
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                            handleInputChange(e)
+                          }                                                         
+                        />
+                      <Button variant='secondary' onClick={() => { 
+                          bulkUpdateFromModal();                                                   
+                        }} >Update</Button>  
+                      <Button variant='secondary' onClick={() => {                                                    
+                          modalVisibility(closeModal);
+                        }} >Close</Button>  
+                    </form>
+                  </CardContent>
+                </Card>
+              </Modal>
+            )}             
         </StyledBox>
         </div>
     </>

@@ -126,8 +126,15 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
                 type: listitem['Type'],
                 did: listitem['DisbursementID'],
                 bsts: 'Fixed-Reissue',
-                isAccepted: true,
-                comments: listitem['Comment'],
+                /* isAccepted: true, */
+                comments: listitem['Comment'],    
+                detailsData: [
+                    { item: 'detailsField1', amt: '100' },
+                    { item: 'detailsField2', amt: '100' },
+                    { item: 'detailsField3', amt: '100' },
+                    { item: 'detailsField4', amt: '100' },
+                    { item: 'detailsField5', amt: '100' },
+                ],
             })
             )
         );
@@ -154,8 +161,13 @@ export const getDisbursementDataAsRowData = (dataPageResults: []) => {
             type: arrayData['Type'],
             did: arrayData['DisbursementID'],
             bsts: 'Fixed-Reissue',
-            isAccepted: true,
+            /* isAccepted: true, */
             comments: arrayData['Comment'],
+            detailField1: '100',
+            detailField2: '200',
+            detailField3: '300',
+            detailField4: '400',
+            detailField5: '500',
         })
     ))
     console.log(rowArray); 
