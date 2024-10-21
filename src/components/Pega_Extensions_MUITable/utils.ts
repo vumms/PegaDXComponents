@@ -112,13 +112,14 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
         console.log(caseSummaryContentObj);   
         /* const embedDataPageList =  `${caseSummaryObj.content}.${paramEmbedName}`;
         console.log(embedDataPageList);   */
-        // e.g. to get CustomerList object values -> pConn().getValue(".DJCSEmbedPage")
+        // e.g. to get DisbursementList object values -> pConn().getValue(".DJCSEmbeddedPage")
         const arrayOfEmbeddedList = paramPConn().getValue(`.${paramEmbedName}`);
         // const cPageReference = `${pConnectProp().getPageReference()}.${disbursementObject}`;
         const rowArray: any = [];        
         arrayOfEmbeddedList?.map((listitem: any) => ( 
             rowArray.push({
-                id: listitem['EmbedListUUID__'],
+                /* id: listitem['EmbedListUUID__'], // Use the same embedded list UUID */
+                id: randomId(),
                 bty: listitem['BeneficiaryType'],
                 bnam: listitem['BeneficiaryName'],
                 bid: listitem['BeneficiaryID'],
@@ -129,11 +130,11 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
                 /* isAccepted: true, */
                 comments: listitem['Comment'],    
                 detailsData: [
-                    { item: 'detailsField1', amt: '100' },
-                    { item: 'detailsField2', amt: '100' },
-                    { item: 'detailsField3', amt: '100' },
-                    { item: 'detailsField4', amt: '100' },
-                    { item: 'detailsField5', amt: '100' },
+                    { id: randomId(), item: 'detailsField1', amt: '100' },
+                    { id: randomId(), item: 'detailsField2', amt: '100' },
+                    { id: randomId(), item: 'detailsField3', amt: '100' },
+                    { id: randomId(), item: 'detailsField4', amt: '100' },
+                    { id: randomId(), item: 'detailsField5', amt: '100' },
                 ],
             })
             )
@@ -153,7 +154,7 @@ export const getDisbursementDataAsRowData = (dataPageResults: []) => {
     const rowArray: any = [];
     dataPageResults.map(arrayData => (   
         rowArray.push({                     
-            id: randomId(),
+            id: arrayData['pyGUID'], // Unique-id is mandatory for Table rows
             bty: arrayData['BeneficiaryType'],
             bnam: arrayData['BeneficiaryName'],
             bid: arrayData['BeneficiaryID'],
@@ -163,11 +164,13 @@ export const getDisbursementDataAsRowData = (dataPageResults: []) => {
             bsts: 'Fixed-Reissue',
             /* isAccepted: true, */
             comments: arrayData['Comment'],
-            detailField1: '100',
-            detailField2: '200',
-            detailField3: '300',
-            detailField4: '400',
-            detailField5: '500',
+            detailsData: [
+                { id: randomId(), item: 'detailsField1', amt: '100' },
+                { id: randomId(), item: 'detailsField2', amt: '100' },
+                { id: randomId(), item: 'detailsField3', amt: '100' },
+                { id: randomId(), item: 'detailsField4', amt: '100' },
+                { id: randomId(), item: 'detailsField5', amt: '100' },
+            ],
         })
     ))
     console.log(rowArray); 

@@ -2,10 +2,10 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import {
   GridColDef,
-  GridRowsProp,
+  GridRowsProp,    
   GridRowSelectionModel,
 } from '@mui/x-data-grid';
-import { DataGridPro, 
+import { DataGridPro,   
   DataGridProProps } from '@mui/x-data-grid-pro';
 import { 
   Button, 
@@ -16,8 +16,8 @@ import {
   Card,
   CardContent, 
   TextArea, 
-  /* Table, */
-  Checkbox } from '@pega/cosmos-react-core';
+  Table,
+  /* Checkbox */ } from '@pega/cosmos-react-core';
 /*   import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack'; */
@@ -25,7 +25,10 @@ import Stack from '@mui/material/Stack'; */
 import React from 'react';
 import { useEffect, useState, useCallback } from "react";
 import { styled } from '@mui/material/styles';
-import { getDisbursementEmbeddedData } from './utils';
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+import { getDisbursementEmbeddedData, getDataPageResults, getDisbursementDataAsRowData } from './utils';
+import { randomId } from '@mui/x-data-grid-generator';
+import { Paper, Stack } from '@mui/material';
 
 
 const StyledBox = styled('div')(({ theme }) => ({
@@ -49,43 +52,59 @@ const StyledBox = styled('div')(({ theme }) => ({
 
 type Props = {
     pConnectProp: any;
-    embedDataPageProp?: string;
+    embedDataPageProp?: string;    
+    dataPageProp: string;
+    prefillProp: string; 
     paginationSizeProp: string;
 }
 const closeModal = 'closeModal';
 const openModal = 'newNote';
 
 function DetailPanelContent({ row: rowProp }: { row: Orders }) {
-  console.log(rowProp);
-  const detailColumns = [
-    { renderer: data => <b>{data.item}</b>, label: 'Breakdown item' },    
-    { renderer: 'amount', label: 'Amount' },    
-  ];
-  console.log(detailColumns);
-  return (      
-   /*  <Grid item={{ colStart: '1', colEnd: '-1' }}>
-        <Text>Field1: {rowProp.detailField1}</Text>
-        <Text>Field2: {rowProp.detailField2}</Text>
-        <Text>Field3: {rowProp.detailField3}</Text>
-        <Text>Field4: {rowProp.detailField4}</Text>
-        <Text>Field5: {rowProp.detailField5}</Text>
-    </Grid> */
-    
-    {/* <Table
-      title='Breakdown of amount'
-      hoverHighlight={false}
-      loading={false}
-      loadingMessage='Loading data'
-      data={false ? [] : rowProp.detailsData}
-      columns={detailColumns}
-    /> */}
+  console.log(rowProp);    
+  /* const tableColumns = [
+    { renderer: 'item', label: 'Item' },
+    { renderer: 'amt', label: 'Amount' },
+  ];   */
+  return (    
+    <Stack
+      sx={{ py: 2, height: '100%', boxSizing: 'border-box' }}
+      direction="column"
+    >
+      <Paper sx={{ flex: 1, mx: 'auto', width: '50%', p: 1 }}>
+          <Stack direction="column" spacing={1} sx={{ height: 1 }}>
+            {/* <DataGrid
+                density="compact"            
+                columns={[
+                  { field: 'item', headerName: 'Item', flex: 0.5, minWidth: 150, },
+                  { field: 'amt', headerName: 'Amount', type: 'number', flex: 0.2, minWidth: 150 },                    
+                ]}
+                rows={rowProp.detailsData}        
+                sx={{ flex: 1 }}
+                hideFooter
+              />      */}        
+              <Table
+                title='Breakdown of amount'
+                hoverHighlight='false'                
+                data={rowProp.detailsData}
+                columns={[
+                  { renderer: 'item', label: 'Item' },
+                  { renderer: 'amt', label: 'Amount' },
+                ]}
+              />       
+        </Stack>
+      </Paper>
+    </Stack>
   );
+   
 }
 
 export default function MUIEmbeddedData(props: Props) {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const { 
       embedDataPageProp,
+      prefillProp,
+      dataPageProp,
       pConnectProp,
       paginationSizeProp,
   } = props;     
@@ -185,9 +204,20 @@ export default function MUIEmbeddedData(props: Props) {
 
   // Fetch embedded data from the case summary content
   const refreshTableData = () => {      
+    // Below method call directly reads from the embedded data page
     getDisbursementEmbeddedData(pConnectProp, embedDataPageProp).then(data => {                  
       setDisbursementTableData(data);
-    }); 
+    });
+
+    // Below call reads from directly data page
+    /* let dataPageParam = prefillProp; 
+    if(!prefillProp) { // If prefill is null, then get it from the dataPage props
+      dataPageParam = dataPageProp;
+    } */
+   // Below method will fetch directly from the data page 
+   /*  getDataPageResults(pConnectProp, dataPageProp).then(data => {                  
+      setDisbursementTableData(getDisbursementDataAsRowData(data));
+    });  */
   }
 
   useEffect(() => {
@@ -217,18 +247,16 @@ export default function MUIEmbeddedData(props: Props) {
   const bulkUpdateAllRows = () => {
     // Read all the modal form data
     const commentsToUpdate = formContent.BulkUpdateCommentsField;
-    const checkBoxSelectedState = formContent.CheckboxIdSelectedRows;
-    const checkBoxUnSelectedState = formContent.CheckboxIdUnSelectedRows;
-    const rbRowSelectionState = formContent.rbRowSelection;
+    /* const checkBoxSelectedState = formContent.CheckboxIdSelectedRows;
+    const checkBoxUnSelectedState = formContent.CheckboxIdUnSelectedRows; */   
 
-    console.log(commentsToUpdate);
+   /*  console.log(commentsToUpdate);
     console.log(checkBoxSelectedState);
-    console.log(checkBoxUnSelectedState);    
-     console.log(rbRowSelectionState);     
+    console.log(checkBoxUnSelectedState);     */   
 
     // Default selection is all table rows
     let rowsToBeUpdated = disbursementTableData;
-    if(checkBoxSelectedState === 'on') {
+   /* if(checkBoxSelectedState === 'on') {
       rowsToBeUpdated = getSelectedRows();
     } 
     if(checkBoxUnSelectedState === 'on') {
@@ -236,7 +264,7 @@ export default function MUIEmbeddedData(props: Props) {
     }
     if(checkBoxSelectedState === 'on' && checkBoxUnSelectedState === 'on') {
       rowsToBeUpdated = disbursementTableData;
-    }
+    } */
     // Radio button selection 
     /* if(formContent.rbAllRows === 'on') {
       rowsToBeUpdated = disbursementTableData;
@@ -332,7 +360,7 @@ export default function MUIEmbeddedData(props: Props) {
                         <RadioButton label='Selected rows' id='rbSelRows' />
                         <RadioButton label='Un-Selected rows' id='rbUnSelRows' />
                       </RadioButtonGroup>
-                      <Checkbox           
+                      {/* <Checkbox           
                           id="CheckboxIdSelectedRows"             
                           info='Select this option to update only for selected rows'                        
                           label='Selected rows only'   
@@ -347,7 +375,7 @@ export default function MUIEmbeddedData(props: Props) {
                           onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                             handleInputChange(e)
                           }                                                         
-                        />
+                        /> */}
                       <Button variant='secondary' onClick={() => { 
                           bulkUpdateFromModal();                                                   
                         }} >Update</Button>  

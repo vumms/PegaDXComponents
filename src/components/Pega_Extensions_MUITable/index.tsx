@@ -52,7 +52,8 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
           }}
           as={StyledGridContainer}
         >
-          {children}
+          {/* I'm hiding the children display here so that embedded data model still in the case view but not visible in the web page */}
+          {/* {children} */}
 
         </Grid>
         <br/>
@@ -103,7 +104,7 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
 
 // Defaulting props here
 PegaComponentsMuiTable.defaultProps = {
-  dataPage: 'D_MUIsimpledataobjectList'
+  dataPage: 'D_DisbursementList',
 };
 // props types are defined here for required props
 PegaComponentsMuiTable.propTypes = {
