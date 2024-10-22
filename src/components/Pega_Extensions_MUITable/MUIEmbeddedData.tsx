@@ -72,17 +72,7 @@ function DetailPanelContent({ row: rowProp }: { row: Orders }) {
       direction="column"
     >
       <Paper sx={{ flex: 1, mx: 'auto', width: '50%', p: 1 }}>
-          <Stack direction="column" spacing={1} sx={{ height: 1 }}>
-            {/* <DataGrid
-                density="compact"            
-                columns={[
-                  { field: 'item', headerName: 'Item', flex: 0.5, minWidth: 150, },
-                  { field: 'amt', headerName: 'Amount', type: 'number', flex: 0.2, minWidth: 150 },                    
-                ]}
-                rows={rowProp.detailsData}        
-                sx={{ flex: 1 }}
-                hideFooter
-              />      */}        
+          <Stack direction="column" spacing={1} sx={{ height: 1 }}>            
               <Table
                 title='Breakdown of amount'
                 hoverHighlight='false'                
@@ -376,7 +366,7 @@ export default function MUIEmbeddedData(props: Props) {
                             handleInputChange(e)
                           }                                                         
                         /> */}
-                      <Button variant='secondary' onClick={() => { 
+                      <Button variant='primary' onClick={() => { 
                           bulkUpdateFromModal();                                                   
                         }} >Update</Button>  
                       <Button variant='secondary' onClick={() => {                                                    
