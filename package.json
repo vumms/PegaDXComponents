@@ -76,7 +76,7 @@
   },
   "devDependencies": {
     "@pega/configs": "^0.6.0",
-    "@pega/custom-dx-components": "23.1.14",
+    "@pega/custom-dx-components": "^24.1.11",
     "@pega/pcore-pconnect-typedefs": "~2.1.1",
     "@storybook/addon-actions": "^7.6.7",
     "@storybook/addon-essentials": "^7.6.7",

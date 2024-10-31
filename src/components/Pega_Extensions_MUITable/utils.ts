@@ -103,6 +103,7 @@ export const inspectCaseSummaryAndReturnList = async (pConn: any, paramDataPage:
     }
 }
 
+
 /* Function to lookup embedded data for Disbursement Object and retrieve list objects in an array */
 export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedName: string ) => {
 
@@ -128,7 +129,7 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
                 did: listitem['DisbursementID'],
                 bsts: 'Fixed-Reissue',
                 /* isAccepted: true, */
-                comments: listitem['Comment'],    
+                comments: listitem['Comment'],                    
                 detailsData: [
                     { id: randomId(), item: 'detailsField1', amt: '100' },
                     { id: randomId(), item: 'detailsField2', amt: '100' },

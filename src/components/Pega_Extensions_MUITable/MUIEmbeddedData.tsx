@@ -3,27 +3,30 @@
 import {
   GridColDef,
   GridRowsProp,    
-  GridRowSelectionModel,
+  GridRowSelectionModel,  
+  GridRowId,  
 } from '@mui/x-data-grid';
 import { DataGridPro,   
-  DataGridProProps } from '@mui/x-data-grid-pro';
+  DataGridProProps } from '@mui/x-data-grid-pro'; 
 import { 
   Button, 
+  /* ComboBox, */
   Flex,  
   RadioButtonGroup,
   RadioButton,
   Modal,   
-  Card,
+  Card,  
   CardContent, 
   TextArea, 
   Table,
+  useModalManager,
+  useModalContext,  
   /* Checkbox */ } from '@pega/cosmos-react-core';
 /*   import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack'; */
 
-import React from 'react';
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { styled } from '@mui/material/styles';
   /* eslint-disable @typescript-eslint/no-unused-vars */
 import { getDisbursementEmbeddedData, getDataPageResults, getDisbursementDataAsRowData } from './utils';
@@ -56,16 +59,15 @@ type Props = {
     dataPageProp: string;
     prefillProp: string; 
     paginationSizeProp: string;
+    commentsDataPageProp: string;
 }
-const closeModal = 'closeModal';
-const openModal = 'newNote';
+/* const closeModal = 'closeModal';
+const openModal = 'newNote'; */
+const openBulkUpdateModal = 'openBulkUpdateModal';
+const closeBulkUpdateModal = 'closeBulkUpdateModal';
 
 function DetailPanelContent({ row: rowProp }: { row: Orders }) {
   console.log(rowProp);    
-  /* const tableColumns = [
-    { renderer: 'item', label: 'Item' },
-    { renderer: 'amt', label: 'Amount' },
-  ];   */
   return (    
     <Stack
       sx={{ py: 2, height: '100%', boxSizing: 'border-box' }}
@@ -85,9 +87,121 @@ function DetailPanelContent({ row: rowProp }: { row: Orders }) {
         </Stack>
       </Paper>
     </Stack>
-  );
-   
+  );   
 }
+ 
+const ShowViewMoreDetailModal = ( props ) => {
+  console.log(props.selectedRowsData);    
+  const { dismiss } = useModalContext();
+
+  const actions = useMemo(() => {
+    return (
+      <>
+        <Button
+          onClick={() => {              
+            dismiss();              
+          }}
+        >
+          Close
+        </Button>
+        <Button variant='primary' onClick={dismiss}>
+          Save
+        </Button>
+      </>
+    );
+  }, [dismiss]);
+
+  return (      
+    <Modal
+      actions={actions}
+      autoWidth={false}
+      stretch={false}
+      center={false}  
+      heading='View details modal'   
+      id='rowDetailModal'
+    >
+      <Card>
+        <CardContent>
+          <form>    
+            <Flex container={{ direction: 'column', gap: 1 }}>                        
+              <Table
+                title='Breakdown of amount'
+                hoverHighlight='false'                
+                data={props.selectedRowsData?.detailsData}
+                columns={[
+                  { renderer: 'item', label: 'Item' },
+                  { renderer: 'amt', label: 'Amount' },
+                ]}
+              />      
+            </Flex>                  
+          </form>
+        </CardContent>
+      </Card>
+    </Modal> 
+    
+  );   
+}
+
+// Explicity button action call this function
+const MoreDetailsModal = ( selectedRowsData ) => {
+  /* const [name, setName] = useState(''); */
+  // const { create } = useModalManager();
+  const { dismiss } = useModalContext();
+
+  const actions = useMemo(() => {
+    return (
+      <>
+        <Button
+          onClick={() => {              
+            dismiss();              
+          }}
+        >
+          Close
+        </Button>
+        <Button variant='primary' onClick={dismiss}>
+          Save
+        </Button>
+      </>
+    );
+  }, [dismiss]);
+
+  return (
+    <Modal
+      actions={actions}
+      heading='Test modal'
+      autoWidth={false}
+      center={false}
+      stretch={false} 
+      /* onRequestDismiss={() => {
+        if (name !== '') {
+          create(MyAlert, { closeInitialModal: dismiss }, { alert: true });
+          return false;
+        }
+      }} */
+    >
+      <Card>
+        <CardContent>
+          <form>    
+            <TextArea
+              label='Enter comments '
+              name='TestField'                                    
+              id="TestField"
+              required='true'     
+              resizable='true'                                                             
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                        handleInputChange(e)
+                        }
+              >
+              </TextArea>    
+              <Button variant='secondary' onClick={() => {                                                    
+                modalVisibility(closeBulkUpdateModal);
+              }} >Close</Button>                
+          </form>
+        </CardContent>
+      </Card>
+    </Modal>
+  );
+};
 
 export default function MUIEmbeddedData(props: Props) {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -97,8 +211,10 @@ export default function MUIEmbeddedData(props: Props) {
       dataPageProp,
       pConnectProp,
       paginationSizeProp,
-  } = props;     
+      commentsDataPageProp,
+  } = props;       
   const [disbursementTableData, setDisbursementTableData] = useState<GridRowsProp>([]);
+  const [commentsListData, setCommentsListData] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);  
@@ -111,29 +227,21 @@ export default function MUIEmbeddedData(props: Props) {
                                                   rbRowSelection: '',
                                                 });  
   const [showModal, setShowModal] = useState(false); // Modal dialog related state
+  const [showBulkUpdateModal, setShowBulkUpdateModal] = useState(false); // Modal dialog for bulk update state 
+  const { create } = useModalManager(); // Modal dialog based 
+  // const { dismiss } = useModalContext();
+
   /* eslint-enable @typescript-eslint/no-unused-vars */
+
+  
+
+  const testingModalManager = () => {
+    create(MoreDetailsModal, { ...props });
+  }
 
   // Text and TextArea input element change event
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormContent({ ...formContent, [event.target.id]: event.target.value });    
-  };
-
-  const modalVisibility = (action: string) => {
-    console.log('View Note Action: ', action);    
-    if (action === openModal) {
-      // setFormContent(getReadOnlyData(tableNotesData, pyGUID));
-      setShowModal(true);
-      console.log('Show Form Content: ', formContent);
-    }
-    if (action === closeModal) {
-      setFormContent({ BulkUpdateCommentsField: '', 
-        CheckboxIdSelectedRows: '', 
-        CheckboxIdUnSelectedRows: '',  
-        rbRowSelection: ''
-       });
-      setShowModal(false);
-      console.log('Hide Form Content: ', formContent);
-    }
   };
 
   const updateComments = async (rowIndex: number, newComment: string) => {    
@@ -154,6 +262,26 @@ export default function MUIEmbeddedData(props: Props) {
       console.log(error);
     } 
   }
+
+  const handleViewDetailsClick = (id: GridRowId) => () => {
+    console.log(id);    
+    const selectedRowsData = disbursementTableData.find((row) => row.id === id.toString());  
+    create(ShowViewMoreDetailModal, { ...props, selectedRowsData });
+    
+    /* create (
+      Modal,
+      {
+        autoWidth: false,
+        stretch: false,
+        center: false,
+        dismissible: false,        
+        heading: 'View details modal window',      
+        children: getViewMoreDetailModalContent(selectedRowsData),
+        id: 'viewDetailModal',        
+      }
+    ); */
+    // setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
 
   const columns: GridColDef[] = [
     /* {
@@ -190,15 +318,35 @@ export default function MUIEmbeddedData(props: Props) {
     { field: 'type', headerName: 'Type', width: 120, editable: false },    
     { field: 'did', headerName: 'Disbursement ID', width: 120, editable: false },    
     { field: 'bsts', headerName: 'Status', width: 120, editable: false },                    
+    { 
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => {
+        return [          
+          <Button variant='link'
+            onClick={handleViewDetailsClick(id)}
+          >
+            View details
+          </Button>,          
+        ];
+      }
+    },                    
   ];
 
   // Fetch embedded data from the case summary content
-  const refreshTableData = () => {      
+  const refreshTableData = useCallback(() => {       
     // Below method call directly reads from the embedded data page
     getDisbursementEmbeddedData(pConnectProp, embedDataPageProp).then(data => {                  
       setDisbursementTableData(data);
     });
 
+    // Read the Comments DP list     
+    getDataPageResults(pConnectProp, commentsDataPageProp).then(data => {
+      setCommentsListData(data);
+    })
     // Below call reads from directly data page
     /* let dataPageParam = prefillProp; 
     if(!prefillProp) { // If prefill is null, then get it from the dataPage props
@@ -208,7 +356,38 @@ export default function MUIEmbeddedData(props: Props) {
    /*  getDataPageResults(pConnectProp, dataPageProp).then(data => {                  
       setDisbursementTableData(getDisbursementDataAsRowData(data));
     });  */
-  }
+  }, [pConnectProp, embedDataPageProp, commentsDataPageProp])
+
+
+  const modalVisibility = (action: string) => {
+    console.log('View Note Action: ', action);    
+    /* if (action === openModal) {      
+      setShowModal(true);
+      console.log('Show Form Content: ', formContent);
+    } */
+    if (action === openBulkUpdateModal) {      
+      setShowBulkUpdateModal(true); // TODO might have to remove this      
+      console.log('Show bulk update modal and its Form Content: ', formContent);
+    }
+    if (action === closeBulkUpdateModal) {
+      setFormContent({ BulkUpdateCommentsField: '', 
+        CheckboxIdSelectedRows: '', 
+        CheckboxIdUnSelectedRows: '',  
+        rbRowSelection: ''
+       });
+      setShowBulkUpdateModal(false);      
+      console.log('Hide bulk upload modal Form Content: ', formContent);
+    }
+    /* if (action === closeModal) {
+      setFormContent({ BulkUpdateCommentsField: '', 
+        CheckboxIdSelectedRows: '', 
+        CheckboxIdUnSelectedRows: '',  
+        rbRowSelection: ''
+       });
+      setShowModal(false);      
+      console.log('Hide Form Content: ', formContent);
+    } */
+  };
 
   useEffect(() => {
     /* TODO: Do I need to check if the table is empty or can I load the data
@@ -219,9 +398,8 @@ export default function MUIEmbeddedData(props: Props) {
     // Set the page reference only once if its empty or undefined  
     if(!pageRef) {
       setPageRef(pConnectProp().getPageReference());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }    
+  }, [pConnectProp, pageRef, embedDataPageProp, refreshTableData]);
 
   const getSelectedRows = () => {
     const selectedRowsData = rowSelectionModel.map((id) => disbursementTableData.find((row) => row.id === id));
@@ -233,7 +411,7 @@ export default function MUIEmbeddedData(props: Props) {
     const unSelectedRowsData = disbursementTableData.filter(e => !excludeList.has(e.id));  
     return (unSelectedRowsData);
   }
-
+  
   const bulkUpdateAllRows = () => {
     // Read all the modal form data
     const commentsToUpdate = formContent.BulkUpdateCommentsField;
@@ -267,38 +445,46 @@ export default function MUIEmbeddedData(props: Props) {
     } 
 
     // Update the comments to all the rows
-    rowsToBeUpdated.forEach((row) => {
-      console.log(row);
+    rowsToBeUpdated.forEach((row) => {      
       const newCommentValue = commentsToUpdate;
       const rowId = row.id;
-      const embeddedRowToBeUpdated = disbursementTableData.find((mainTableRow) => mainTableRow.id === rowId);
+      // const embeddedRowToBeUpdated = disbursementTableData.find((mainTableRow) => mainTableRow.id === rowId);
       const indexOfRow = disbursementTableData.findIndex(obj => obj.id === rowId);
-      console.log(newCommentValue);
-      console.log(rowId);
-      console.log(embeddedRowToBeUpdated);
+      console.log('Row to be updated=', row);
+      console.log('New comments=', newCommentValue);
+      console.log('RowId to be updated=', rowId);
+      // console.log(embeddedRowToBeUpdated);
       updateComments(indexOfRow, newCommentValue);
-    });
-    refreshTableData();
+      // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
+      disbursementTableData[indexOfRow].comments = newCommentValue;      
+      console.log("Successfully updated row");
+    });    
+    // refreshTableData();  
   }
 
   const bulkUpdateFromModal = () => {
     bulkUpdateAllRows();
-    modalVisibility(closeModal); // Close the modal dialog after the update
+    modalVisibility(closeBulkUpdateModal); // Close the bulk update modal dialog after the update
+    // showBulkUpdateModal(false);
   }
+  
  
-  const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetailPanelContent']>>(({ row }) => <DetailPanelContent row={row} />, []);
+const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetailPanelContent']>>(({ row }) => <DetailPanelContent row={row} />, []);
 
   return (
     <>
         <div style={{ height: 400, width: '100%' }}>
         <StyledBox>
-            <Flex container={{ direction: 'row' }}>                                       
+            <Flex container={{ direction: 'row', gap: 1 }}>                                       
                 <Button variant='secondary' onClick={refreshTableData}>Refresh embedded data</Button> 
                 <Button variant='primary' onClick={() => {                            
-                            modalVisibility(openModal);
+                            modalVisibility(openBulkUpdateModal);
                           }} >Bulk update modal</Button>    
+                <Button variant='secondary' onClick={() => {                            
+                            testingModalManager();
+                          }} >Test ModalManager</Button>                              
             </Flex>
-            <DataGridPro 
+            <DataGridPro
               rows={disbursementTableData} 
               columns={columns}           
               checkboxSelection 
@@ -319,10 +505,10 @@ export default function MUIEmbeddedData(props: Props) {
               }}                            
               rowSelectionModel={rowSelectionModel}
             />
-            {showModal && (
+          {showBulkUpdateModal && (
               <Modal              
                 heading="Bulk update modal dialog"
-                onRequestDismiss={() => modalVisibility(closeModal)}
+                onRequestDismiss={() => modalVisibility(closeBulkUpdateModal)}
               >
                 <Card>
                   <CardContent>
@@ -337,7 +523,7 @@ export default function MUIEmbeddedData(props: Props) {
                         onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                           handleInputChange(e)
                         }
-                      />                      
+                      />                         
                       <RadioButtonGroup                        
                         label='Select one to bulk update comments?'
                         name='typeOfUpdate'                                                                                                                        
@@ -368,15 +554,15 @@ export default function MUIEmbeddedData(props: Props) {
                         /> */}
                       <Button variant='primary' onClick={() => { 
                           bulkUpdateFromModal();                                                   
-                        }} >Update</Button>  
+                        }} disabled={BulkUpdateCommentsField === ''}>Update</Button>  
                       <Button variant='secondary' onClick={() => {                                                    
-                          modalVisibility(closeModal);
+                          modalVisibility(closeBulkUpdateModal);
                         }} >Close</Button>  
                     </form>
                   </CardContent>
                 </Card>
               </Modal>
-            )}             
+            )}                        
         </StyledBox>
         </div>
     </>

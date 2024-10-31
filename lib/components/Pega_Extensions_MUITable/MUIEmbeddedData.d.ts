@@ -4,6 +4,7 @@ type Props = {
     dataPageProp: string;
     prefillProp: string;
     paginationSizeProp: string;
+    commentsDataPageProp: string;
 };
 export default function MUIEmbeddedData(props: Props): import("react/jsx-runtime").JSX.Element;
 export {};

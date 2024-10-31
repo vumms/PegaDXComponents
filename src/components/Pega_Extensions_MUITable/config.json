@@ -21,6 +21,13 @@
       "label": "Choose Data Page",
       "format": "TEXT"
     },
+    {
+      "format": "DATAPAGE",
+      "name": "commentsDataPage",
+      "label": "Choose dataPage for comments",
+      "contextFilterProp": "contextClass",
+      "lookupPathOverride": "viewMetadata.config"
+    },
     {      
       "name": "embedDataPage",
       "label": "Choose Embedded Data Page",

@@ -25,6 +25,7 @@ type PegaComponentsMUITableProps = {
   getPConnect: any;
   paginationSize: string;  
   prefill: any;
+  commentsDataPage: any;
 };
 
 // This props passed in combination of props from property panel (config.json) and run time props from Constellation
@@ -37,11 +38,12 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
           embedDataPage,
           getPConnect,
           paginationSize,  
-          prefill,        
+          prefill,    
+          commentsDataPage,    
         } = props;            
 
   const nCols = parseInt(NumCols, 10);
-  const context = getPConnect().getContextName();
+  const context = getPConnect().getContextName();  
    
   return (
     <FieldGroup name={heading}>
@@ -91,7 +93,7 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
             <Text variant='h2' status={undefined}>
                 MUI Table using Embedded data (Reading from embedded page list) 
             </Text>
-            <MUIEmbeddedData pConnectProp={getPConnect} embedDataPageProp={embedDataPage} paginationSizeProp={paginationSize} />
+            <MUIEmbeddedData pConnectProp={getPConnect} commentsDataPageProp={commentsDataPage.referenceList} embedDataPageProp={embedDataPage} paginationSizeProp={paginationSize} />
             <br/><br/>
             <Text variant='h2' status={undefined}>
                 MUI Master details testing table 
