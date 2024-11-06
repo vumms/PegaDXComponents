@@ -104,9 +104,9 @@ const ShowViewMoreDetailModal = ( props ) => {
         >
           Close
         </Button>
-        <Button variant='primary' onClick={dismiss}>
+       {/*  <Button variant='primary' onClick={dismiss}>
           Save
-        </Button>
+        </Button> */}
       </>
     );
   }, [dismiss]);
@@ -142,6 +142,127 @@ const ShowViewMoreDetailModal = ( props ) => {
   );   
 }
 
+const ShowBulkUpdateModalDialog = ( props ) => {
+  console.log(props);    
+  const { dismiss } = useModalContext();
+  const [modalFormContent, setModalFormContent] = useState({ BulkUpdateCommentsField: '',     
+    rbRowSelection: '',
+  });  
+
+  // Modal action buttons function
+  const actions = useMemo(() => {
+
+    // Function to update comments using pConnect API
+    const updateComments = async (rowIndex: number, newComment: string) => {    
+      const embedObject = `${props.embedDataPageProp}[${rowIndex}]`;    
+      const embedPageReference = `${props.pageRef}.${embedObject}`;
+      console.log("Page reference=", embedPageReference);
+      try {    
+        // Use the below code as workaround to bypass the bug in the product, INC to be raised
+        props.pConnectProp()._pageReference = embedPageReference;
+        props.pConnectProp().getActionsApi().updateFieldValue('.Comment', newComment, 
+        {
+          removePropertyFromChangedList: false,
+          skipDirtyValidation: false
+        });
+        // Reset page reference back to original reference
+        props.pConnectProp()._pageReference = pageRef;
+      } catch (error) {
+        console.log(error);
+      } 
+    }
+
+    // Function called to collect required information before updating REDUX store
+    const updateTableRows = () => {
+      // Read all the modal form data
+      const commentsToUpdate = modalFormContent.BulkUpdateCommentsField;
+      // Default selection is all table rows
+      let rowsToBeUpdated = props.disbursementTableData;
+      if(modalFormContent.rbSelRows === 'on') {
+        rowsToBeUpdated = props.selectedRowsParam;
+      } 
+      if(modalFormContent.rbUnSelRows === 'on') {
+        rowsToBeUpdated = props.unSelectedRowsParam;
+      } 
+  
+      // Update the comments to all the rows
+      rowsToBeUpdated.forEach((row) => {      
+        const newCommentValue = commentsToUpdate;
+        const rowId = row.id;
+        const indexOfRow = props.disbursementTableData.findIndex(obj => obj.id === rowId);
+        console.log('Row to be updated=', row);
+        console.log('New comments=', newCommentValue);
+        console.log('RowId to be updated=', rowId);
+        updateComments(indexOfRow, newCommentValue);
+        // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
+        // props.disbursementTableData[indexOfRow].comments = newCommentValue;      
+        console.log("Successfully updated row");
+      });    
+    }
+    return (
+      <>
+        <Button
+          onClick={() => {              
+            dismiss();              
+          }}
+        >
+          Close
+        </Button>
+        <Button variant='primary' onClick={updateTableRows} disabled={modalFormContent.BulkUpdateCommentsField === ''}>
+          Update
+        </Button>
+      </>
+    );
+  }, [dismiss, modalFormContent, props]
+);
+
+  // Text and TextArea input element change event
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setModalFormContent({ ...modalFormContent, [event.target.id]: event.target.value });    
+  };
+
+  return ( 
+    <Modal           
+      actions={actions}
+      autoWidth={false}
+      stretch={false}
+      center={false}  
+      heading='Bulk update modal'   
+      id='bulkUploadModalId'                   
+     >
+      <Card>
+        <CardContent>
+          <form>                    
+            <TextArea
+              label='Enter comments for bulk update'
+              name='bulkUpdateCommentsField'                      
+              defaultValue={modalFormContent.BulkUpdateCommentsField}
+              id="BulkUpdateCommentsField"
+              required='true'     
+              resizable='true'                                                             
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                handleInputChange(e)
+              }
+            />                         
+            <RadioButtonGroup                        
+              label='Select one to bulk update comments?'
+              name='typeOfUpdate'                                                                                                                        
+              info='Select one of the above item to update the comments'
+              onClick={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                handleInputChange(e)
+              }                               
+            >
+              <RadioButton label='All rows' id='rbAllRows' defaultChecked />
+              <RadioButton label='Selected rows' id='rbSelRows' />
+              <RadioButton label='Un-Selected rows' id='rbUnSelRows' />
+            </RadioButtonGroup>                       
+          </form>
+        </CardContent>
+      </Card>
+    </Modal>     
+  );   
+}
+
 // Explicity button action call this function
 const MoreDetailsModal = ( selectedRowsData ) => {
   /* const [name, setName] = useState(''); */
@@ -164,6 +285,7 @@ const MoreDetailsModal = ( selectedRowsData ) => {
       </>
     );
   }, [dismiss]);
+  
 
   return (
     <Modal
@@ -263,6 +385,7 @@ export default function MUIEmbeddedData(props: Props) {
     } 
   }
 
+  
   const handleViewDetailsClick = (id: GridRowId) => () => {
     console.log(id);    
     const selectedRowsData = disbursementTableData.find((row) => row.id === id.toString());  
@@ -411,6 +534,12 @@ export default function MUIEmbeddedData(props: Props) {
     const unSelectedRowsData = disbursementTableData.filter(e => !excludeList.has(e.id));  
     return (unSelectedRowsData);
   }
+
+  const handleOpenBulkUpdateClick = () => {
+    const selectedRowsParam = getSelectedRows();
+    const unSelectedRowsParam = getUnSelectedRows();
+    create(ShowBulkUpdateModalDialog, { ...props, selectedRowsParam, unSelectedRowsParam, disbursementTableData, pageRef});
+  }
   
   const bulkUpdateAllRows = () => {
     // Read all the modal form data
@@ -479,7 +608,11 @@ const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetai
                 <Button variant='secondary' onClick={refreshTableData}>Refresh embedded data</Button> 
                 <Button variant='primary' onClick={() => {                            
                             modalVisibility(openBulkUpdateModal);
-                          }} >Bulk update modal</Button>    
+                          }} >Bulk update modal using single modal dialog</Button>    
+                <Button variant='primary' onClick={() => {                            
+                            handleOpenBulkUpdateClick();
+                          }} >Bulk update modal using multi modal dialog</Button>    
+
                 <Button variant='secondary' onClick={() => {                            
                             testingModalManager();
                           }} >Test ModalManager</Button>                              
@@ -554,7 +687,7 @@ const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetai
                         /> */}
                       <Button variant='primary' onClick={() => { 
                           bulkUpdateFromModal();                                                   
-                        }} disabled={BulkUpdateCommentsField === ''}>Update</Button>  
+                        }} disabled={'BulkUpdateCommentsField' === ''}>Update</Button>  
                       <Button variant='secondary' onClick={() => {                                                    
                           modalVisibility(closeBulkUpdateModal);
                         }} >Close</Button>  
