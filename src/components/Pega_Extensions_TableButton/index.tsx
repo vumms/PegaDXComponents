@@ -15,17 +15,15 @@ type TableButtonProps = {
 
 function PegaExtensionsTableButton(props: TableButtonProps) {
   const { getPConnect, label, value, localAction } = props;  
-  const launchButtonAction = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    // const actionsAPI = getPConnect().getActionsApi();    
-    console.log(getPConnect(), localAction, event); // This is just to keep the variables active from typescript warnings
+  const launchButtonAction = () => {    
+    console.log(getPConnect(), localAction); // This is just to keep the variables active from typescript warnings
+    // Row id value variable is populated based on the view metadata that is custom configured on the view 
     console.log('Row id=', value);
   };
   return (
     <StyledPegaExtensionsTableButtonWrapper>
       <Flex container={{ direction: 'row' }}>
-        <Button onClick={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                          launchButtonAction(e)
-                        } >{label}</Button>
+        <Button onClick={launchButtonAction} >{label}</Button>
         
       </Flex>
     </StyledPegaExtensionsTableButtonWrapper>
