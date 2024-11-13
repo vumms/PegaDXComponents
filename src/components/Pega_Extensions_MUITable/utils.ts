@@ -103,6 +103,26 @@ export const inspectCaseSummaryAndReturnList = async (pConn: any, paramDataPage:
     }
 }
 
+export const findUniqueId = <T>(arr1: T[], arr2: T[]): T[] => {  
+    if(arr1.length > arr2.length)
+      return arr1.filter(item => !arr2.includes(item));
+    else
+      return arr2.filter(item => !arr1.includes(item));
+  }
+
+export const findRowDetailById = (rowId: string, arrList: []) => {
+    console.log("RowId=", rowId);
+    console.log("Table=", arrList);
+    const selectedRowsData = arrList.find((row:any) => row.id === rowId);
+    console.log("SelectedRow", selectedRowsData);
+    return(selectedRowsData);
+  }
+
+  export const isUserSelectedRowCommentsEmpty = (arr1: [], arr2: [], sourceArrList: []): boolean => { 
+    const selectedId = findUniqueId(arr1, arr2);
+    const selectedRowObject: any = findRowDetailById(selectedId.toString(), sourceArrList);
+    return(selectedRowObject.comments === '');
+  }
 
 /* Function to lookup embedded data for Disbursement Object and retrieve list objects in an array */
 export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedName: string ) => {
@@ -120,16 +140,17 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
         arrayOfEmbeddedList?.map((listitem: any) => ( 
             rowArray.push({
                 /* id: listitem['EmbedListUUID__'], // Use the same embedded list UUID */
-                id: randomId(),
+                id: (listitem['pyGUID']?listitem['pyGUID']:randomId()),
                 bty: listitem['BeneficiaryType'],
                 bnam: listitem['BeneficiaryName'],
                 bid: listitem['BeneficiaryID'],
                 amt: listitem['Amount'],
                 type: listitem['Type'],
                 did: listitem['DisbursementID'],
-                bsts: 'Fixed-Reissue',
+                bsts: 'Fixed-Reissue',                
                 /* isAccepted: true, */
-                comments: listitem['Comment'],                    
+                comments: listitem['Comment'], 
+                select: listitem['Select'],  // boolean select state of each row                   
                 detailsData: [
                     { id: randomId(), item: 'detailsField1', amt: '100' },
                     { id: randomId(), item: 'detailsField2', amt: '100' },
