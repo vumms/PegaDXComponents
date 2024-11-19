@@ -1,12 +1,15 @@
 import { randomId } from '@mui/x-data-grid-generator';
 
 /* Function to retrieve datapage list */
-export const getDataPageResults = async (pConn: any, paramDataPage: string ) => {
+export const getDataPageResults = async (pConn: any, paramDataPage: any) => {
     const PCore = (window as any).PCore;    
     const context = pConn().getContextName();
+    const dataPage = paramDataPage?.referenceList;    
+    const parameters = paramDataPage?.parameters?paramDataPage.parameters:{};
 
     try {
-        const getData = await PCore.getDataPageUtils().getDataAsync(paramDataPage, context);
+        // const getData = await PCore.getDataPageUtils().getDataAsync(paramDataPage, context);
+        const getData = await PCore.getDataPageUtils().getDataAsync(dataPage, context, parameters);
         if (getData.status === 200 || getData.data.length > 0) {
             return getData.data;
         }
@@ -124,6 +127,10 @@ export const findRowDetailById = (rowId: string, arrList: []) => {
     return(selectedRowObject.comments === '');
   }
 
+  export const isEmpty = (value: any) => {
+    return (value == null || (typeof value === "string" && value.trim().length === 0));
+  }
+
 /* Function to lookup embedded data for Disbursement Object and retrieve list objects in an array */
 export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedName: string ) => {
 
@@ -140,7 +147,7 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
         arrayOfEmbeddedList?.map((listitem: any) => ( 
             rowArray.push({
                 /* id: listitem['EmbedListUUID__'], // Use the same embedded list UUID */
-                id: (listitem['pyGUID']?listitem['pyGUID']:randomId()),
+                id: (randomId()),
                 bty: listitem['BeneficiaryType'],
                 bnam: listitem['BeneficiaryName'],
                 bid: listitem['BeneficiaryID'],
@@ -150,7 +157,7 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
                 bsts: 'Fixed-Reissue',                
                 /* isAccepted: true, */
                 comments: listitem['Comment'], 
-                select: listitem['Select'],  // boolean select state of each row                   
+                Select: listitem['Select'],  // boolean select state of each row                   
                 detailsData: [
                     { id: randomId(), item: 'detailsField1', amt: '100' },
                     { id: randomId(), item: 'detailsField2', amt: '100' },
@@ -194,6 +201,49 @@ export const getDisbursementDataAsRowData = (dataPageResults: []) => {
                 { id: randomId(), item: 'detailsField5', amt: '100' },
             ],
         })
+    ))
+    console.log(rowArray); 
+    return rowArray;
+}
+
+/*
+{
+    "transaction_date": null,
+    "batch_id": null,
+    "difference_in_days": null,
+    "disbursement_id": null,
+    "mdm_golden_id": null,
+    "registration_fee": 30,
+    "issuing_agency_code": null,
+    "warrant_cost": null,
+    "prn_amount": 40,
+    "obligation_number": "3232323232",
+    "pxObjClass": "DJCS-Data-ObligationStore-DisbursementDetails",
+    "actual_payment_date": null,
+    "total_paid": 100,
+    "infringement_number": "3232323232",
+    "court_cost_amount": null,
+    "enforcement_fee": 60,
+    "fine_amount": 20,
+    "disbursement_type": null,
+    "infringement_issue_date": null,
+    "collection_statement_issue_date": null
+}
+*/
+export const getDisbursementDetailsDataAsRowData = (dataPageResults: []) => {
+    const rowArray: any = [];        
+    dataPageResults?.map((listitem: any) => ( 
+            rowArray.push({
+                id: (randomId()), // unique row id
+                disbursementId: listitem['DisbursementId'],
+                enforcementFee: listitem['EnforcementFee'],
+                fineAmount: listitem['FineAmount'],
+                infringementNumber: listitem['InfringementNumber'],
+                obligationNumber: listitem['ObligationNumber'],
+                prnAmount: listitem['PrnAmount'],
+                registrationFee: listitem['RegistrationFee'],
+                totalPaid: listitem['TotalPaid'],                
+            })
     ))
     console.log(rowArray); 
     return rowArray;

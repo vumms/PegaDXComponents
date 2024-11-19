@@ -50,6 +50,7 @@ export default function MUISimpleTable(props: Props) {
     const [simpleTableData, setSimpleTableData] = useState([]);
 
     useEffect(() => {
+      // const dpParams = {};
         getDataPageResults(pConnectProp, dataPageProp).then(data => {                  
             setSimpleTableData(getMUISimpleTableRowValues(data));            
         }); 

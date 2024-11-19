@@ -101,6 +101,7 @@ export default function MUIEditableSimpleTable(props: Props) {
 
 
     useEffect(() => {
+        // const dpParams = {};
         getDataPageResults(pConnectProp, dataPageProp).then(data => {                  
             setSimpleTableData(getMUISimpleTableRowValues(data));            
         }); 

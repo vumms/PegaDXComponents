@@ -25,6 +25,8 @@ type PegaComponentsMUITableProps = {
   getPConnect: any;
   paginationSize: string;  
   prefill: any;
+  disbursementDetailsDataPage: any;
+  disbursementDetailsDPParams: string;
   commentsDataPage: any;
 };
 
@@ -39,6 +41,8 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
           getPConnect,
           paginationSize,  
           prefill,    
+          disbursementDetailsDataPage,
+          disbursementDetailsDPParams,
           commentsDataPage,    
         } = props;            
 
@@ -93,12 +97,17 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
             <Text variant='h2' status={undefined}>
                 MUI Table using Embedded data (Reading from embedded page list) 
             </Text>
-            <MUIEmbeddedData pConnectProp={getPConnect} commentsDataPageProp={commentsDataPage.referenceList} embedDataPageProp={embedDataPage} paginationSizeProp={paginationSize} />
+            <MUIEmbeddedData pConnectProp={getPConnect} 
+                              commentsDataPageProp={commentsDataPage.referenceList} 
+                              embedDataPageProp={embedDataPage} 
+                              paginationSizeProp={paginationSize} 
+                              disbursementDetailsDataPageProp={disbursementDetailsDataPage}
+                              disbursementDetailsDPParamsProps={disbursementDetailsDPParams}/>
             <br/><br/>
-            <Text variant='h2' status={undefined}>
+            {/* <Text variant='h2' status={undefined}>
                 MUI Master details testing table 
             </Text>
-            <MUIMasterDetailTable pConnectProp={getPConnect} dataPageProp={dataPage} paginationSizeProp={paginationSize}/>
+            <MUIMasterDetailTable pConnectProp={getPConnect} dataPageProp={dataPage} paginationSizeProp={paginationSize}/> */}
         </Fragment>
     </FieldGroup>
   );

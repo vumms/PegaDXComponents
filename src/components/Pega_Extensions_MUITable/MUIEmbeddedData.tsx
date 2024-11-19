@@ -4,10 +4,11 @@ import {
   GridRowsProp,    
   GridRowSelectionModel, 
   GridCallbackDetails, 
-  GridRowId,    
+  GridRowId,  
+  DataGrid,  
   useGridApiRef,
 } from '@mui/x-data-grid';
-import { DataGridPro,   
+import { DataGridPro,     
   DataGridProProps } from '@mui/x-data-grid-pro'; 
 import { 
   Button, 
@@ -20,6 +21,7 @@ import {
   CardContent, 
   TextArea, 
   Table,
+  Banner,
   useModalManager,
   useModalContext,  
   /* Checkbox */ } from '@pega/cosmos-react-core';
@@ -32,8 +34,10 @@ import { useEffect, useMemo, useState, useCallback } from "react";
   /* eslint-disable @typescript-eslint/no-unused-vars */
 import { getDisbursementEmbeddedData, 
         getDataPageResults, 
-        getDisbursementDataAsRowData, 
+        getDisbursementDataAsRowData,
+        getDisbursementDetailsDataAsRowData, 
         findUniqueId,         
+        isEmpty,
         // findRowDetailById,        
         isUserSelectedRowCommentsEmpty,
        } from './utils';
@@ -69,6 +73,8 @@ type Props = {
     prefillProp: string; 
     paginationSizeProp: string;
     commentsDataPageProp: string;
+    disbursementDetailsDataPageProp: any;
+    disbursementDetailsDPParamsProps: string;
 }
 /* const closeModal = 'closeModal';
 const openModal = 'newNote'; */
@@ -98,14 +104,28 @@ function DetailPanelContent({ row: rowProp }: { row: Orders }) {
     </Stack>
   );   
 }
- 
+
+
 const ShowViewMoreDetailModal = ( props ) => {
-  console.log(props.selectedRowsData);    
+  console.log(props);    
+  const [disbursementDetails, setDisbursementDetails] = useState(); 
+  const [emptyData, setEmptyData] = useState(false); 
   const { dismiss } = useModalContext();
+  
+  const columns: GridColDef[] = [
+    { field: 'disbursementId', headerName: 'Disbursement ID', width: 120, editable: false },
+    { field: 'enforcementFee', headerName: 'Enforcement fee', width: 120, editable: false },
+    { field: 'fineAmount', headerName: 'Fine Amount', width: 120, editable: false },
+    { field: 'infringementAmount', headerName: 'Infringement amount', width: 120, editable: false },                               
+    { field: 'obligationNumber', headerName: 'Obligation number', width: 120, editable: false },
+    { field: 'prnAmount', headerName: 'Prn amount', width: 120, editable: false },
+    { field: 'registrationFee', headerName: 'Registration fee', width: 120, editable: false },
+    { field: 'totalPaid', headerName: 'Total Paid', width: 120, editable: false },
+  ];
 
   const actions = useMemo(() => {
     return (
-      <>
+      
         <Button
           onClick={() => {              
             dismiss();              
@@ -113,14 +133,32 @@ const ShowViewMoreDetailModal = ( props ) => {
         >
           Close
         </Button>
-       {/*  <Button variant='primary' onClick={dismiss}>
-          Save
-        </Button> */}
-      </>
+      
     );
   }, [dismiss]);
 
-  return (      
+  const getDisbursementDetailsTableData = useCallback(() => {    
+    props.disbursementDetailsDataPageProp.parameters['DisbursementID'] = props.selectedRowsData['did'];    
+    getDataPageResults(props.pConnectProp, props.disbursementDetailsDataPageProp).then(data => {                  
+      setDisbursementDetails(getDisbursementDetailsDataAsRowData(data));
+      console.log(data);
+    });  
+  }, [props.pConnectProp, props.disbursementDetailsDataPageProp, props.selectedRowsData]);
+
+  useEffect(() => {
+    console.log('Inside showviewmoredetailsmodal useeffect');
+    // Check if a valid id exist before calling dataPage
+    if(isEmpty(props.selectedRowsData['did'])) {
+      setEmptyData(true);
+    } else {
+      getDisbursementDetailsTableData();
+      setEmptyData(false);
+    }
+    console.log('Empty data state=', emptyData);
+    // console.log(disbursementDetails); 
+  }, [props.pConnectProp, getDisbursementDetailsTableData, props.selectedRowsData, emptyData]);
+  
+  return (          
     <Modal
       actions={actions}
       autoWidth={false}
@@ -129,25 +167,44 @@ const ShowViewMoreDetailModal = ( props ) => {
       heading='View details modal'   
       id='rowDetailModal'
     >
-      <Card>
-        <CardContent>
+      {/* <Card>
+        <CardContent> */}
+        
           <form>    
-            <Flex container={{ direction: 'column', gap: 1 }}>                        
-              <Table
+           <Box sx={{ height: 400, width: '100%' }}>                       
+               {/* <Table
                 title='Breakdown of amount'
-                hoverHighlight='false'                
+                hoverHighlight='false'                                
                 data={props.selectedRowsData?.detailsData}
                 columns={[
                   { renderer: 'item', label: 'Item' },
                   { renderer: 'amt', label: 'Amount' },
                 ]}
-              />      
-            </Flex>                  
+
+              /> */}
+              <div style={{ height: 300, width: '100%' }}>
+                <h1>Disbursement details</h1>                
+                { emptyData? (
+                  <Banner
+                    variant='urgent'
+                    messages={['No details record found.']}
+                    // onDismiss={dismiss()}
+                    // handle={bannerHandleRef}
+                  />
+                  ) : (
+                    <DataGrid
+                      rows={disbursementDetails}
+                      columns={columns}
+                    />   
+                  )
+                }
+              </div>
+            </Box>                  
           </form>
-        </CardContent>
-      </Card>
+        
+  {/*       </CardContent>
+      </Card> */}
     </Modal> 
-    
   );   
 }
 
@@ -348,6 +405,8 @@ export default function MUIEmbeddedData(props: Props) {
       pConnectProp,
       paginationSizeProp,
       commentsDataPageProp,
+      disbursementDetailsDataPageProp,
+      disbursementDetailsDPParamsProps,      
   } = props;       
   const [disbursementTableData, setDisbursementTableData] = useState<GridRowsProp>([]);  
   const [commentsListData, setCommentsListData] = useState([]);
@@ -381,6 +440,28 @@ export default function MUIEmbeddedData(props: Props) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormContent({ ...formContent, [event.target.id]: event.target.value });    
   };
+
+  // TODO generic function to be used for any field update using pConnect API - Should use this to match field props
+  /* const updateFieldUsingPConnect = async (rowIndex: number, field: string, fieldValue: string) => {    
+    const embedObject = `${embedDataPageProp}[${rowIndex}]`;    
+    const embedPageReference = `${pageRef}.${embedObject}`;
+    console.log("Page reference=", embedPageReference);
+    try {    
+      // Use the below code as workaround to bypass the bug in the product, INC to be raised
+      pConnectProp()._pageReference = embedPageReference;
+      pConnectProp().getActionsApi().updateFieldValue(`.${field}`, fieldValue, 
+      {
+        removePropertyFromChangedList: false,
+        skipDirtyValidation: false
+      });
+      // Reset page reference back to original reference
+      pConnectProp()._pageReference = pageRef;
+      // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
+      disbursementTableData[rowIndex].$field = fieldValue;       
+    } catch (error) {
+      console.log(error);
+    } 
+  } */
 
   const updateComments = async (rowIndex: number, newComment: string) => {    
     const embedObject = `${embedDataPageProp}[${rowIndex}]`;    
@@ -418,31 +499,27 @@ export default function MUIEmbeddedData(props: Props) {
       // Reset page reference back to original reference
       pConnectProp()._pageReference = pageRef;
       // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
-      disbursementTableData[rowIndex].select = selectState;       
+      disbursementTableData[rowIndex].Select = selectState;       
     } catch (error) {
       console.log(error);
     } 
   }
-
   
   const handleViewDetailsClick = (id: GridRowId) => () => {
     console.log(id);    
-    const selectedRowsData = disbursementTableData.find((row) => row.id === id.toString());  
-    create(ShowViewMoreDetailModal, { ...props, selectedRowsData });
-    
-    /* create (
-      Modal,
-      {
-        autoWidth: false,
-        stretch: false,
-        center: false,
-        dismissible: false,        
-        heading: 'View details modal window',      
-        children: getViewMoreDetailModalContent(selectedRowsData),
-        id: 'viewDetailModal',        
-      }
-    ); */
-    // setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    const selectedRowsData = disbursementTableData.find((row) => row.id === id.toString()); 
+    console.log(selectedRowsData);
+    // const dataPageParams = {disbursementDetailsDPParamsProps: selectedRowsData};
+    // Set the disbursement id as parameter
+    /* let disbursementDetailData = {};    
+    disbursementDetailsDataPageProp.parameters['DisbursementID'] = id;
+    getDataPageResults(pConnectProp, disbursementDetailsDataPageProp).then(data => {                  
+      disbursementDetailData = data;
+      console.log(data);
+    });   
+    // const disbursementDetailData = getDataPageResults(pConnectProp, disbursementDetailsDataPageProp);
+    console.log(disbursementDetailData); */
+    create(ShowViewMoreDetailModal, { ...props, selectedRowsData });    
   };
 
   const columns: GridColDef[] = [
@@ -476,6 +553,13 @@ export default function MUIEmbeddedData(props: Props) {
       type: 'number',
       width: 120,
       editable: false,
+      valueFormatter: (params) => {
+        return new Intl.NumberFormat('en-EN', {
+            style: 'currency',
+            currency: 'AUD',
+            minimumFractionDigits: 2,
+        }).format(params);
+      }
     },
     { field: 'type', headerName: 'Type', width: 120, editable: false },    
     { field: 'did', headerName: 'Disbursement ID', width: 120, editable: false },    
@@ -667,6 +751,8 @@ export default function MUIEmbeddedData(props: Props) {
   
 const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetailPanelContent']>>(({ row }) => <DetailPanelContent row={row} />, []);
 
+
+
   return (        
       <StyledWrapper>
       {/* <div style={{ height: 400, width: '100%' }}> */}
@@ -675,14 +761,17 @@ const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetai
                 <Button variant='secondary' onClick={refreshTableData}>Refresh embedded data</Button> 
                 <Button variant='primary' onClick={() => {                            
                             modalVisibility(openBulkUpdateModal);
-                          }} >Bulk update modal using single modal dialog</Button>    
+                          }} >Bulk update - single modal dialog</Button>    
                 <Button variant='primary' onClick={() => {                            
                             handleOpenBulkUpdateClick();
-                          }} >Bulk update modal using multi modal dialog</Button>    
+                          }} >Bulk update - multi modal dialog</Button>    
 
                 <Button variant='secondary' onClick={() => {                            
                             testingModalManager();
                           }} >Test ModalManager</Button>                              
+                <Button variant='secondary' onClick={() => {                            
+                            MUIModalDialogTesting();
+                          }} >Open MUI Dialog</Button>                                                        
             </Flex>
             <Box sx={{ height: 370, width: '100%' }}>
               <DataGridPro
@@ -716,14 +805,55 @@ const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetai
                   console.log('isRowSelectable=', details.api.isRowSelectable(), ' isRowSelected=', details.api.isRowSelected());
                   // Check if the comments field is empty 
                   console.log(apiRef);
-                  const userSelectedRowId = findUniqueId(newRowSelectionModel, rowSelectionModel);
-                  const userSelectedRow = details.api.getRow(userSelectedRowId);
+                  /* const userSelectedRowId = findUniqueId(newRowSelectionModel, rowSelectionModel);
+                  const userSelectedRow = details.api.getRow(userSelectedRowId); */
+                  // Another way to retrieve the selected row id
+                  const userSelectedRowId = details.api.store.value.focus.cell?.id;  // Its possible sometimes at id level we might have null
+                  const checkedState = newRowSelectionModel.includes(userSelectedRowId);
+                 
+                  /* // This is the code to retrieve or change the state of comments error to false
+                  details.api.store.value.editRows['69d97702-1c4d-5547-83b1-478e178f9522'].comments.error=false */
+
+                  /* console.log(!isEmpty(userSelectedRowId));
+                  console.log(details.api.store.value.editRows);
+                  console.log(details.api.store.value.editRows[userSelectedRowId].comments.value);
+                  console.log(isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value)); */
+                  if( checkedState && Object.keys(details.api.store.value.editRows)?.length > 0 ) {
+                      /* Object.keys(details.api.store.value.editRows).length > 0 && 
+                      isEmpty(details.api.store.value.editRows[zUserSelectedRowId].comments.value)  */
+                      console.log(userSelectedRowId, " checked");
+                      // Set the comment field error state to false                               
+                      details.api.store.value.editRows[userSelectedRowId].comments.error=false;
+
+                  } else {
+                    console.log(userSelectedRowId, " un-checked");
+                    if( Object.keys(details.api.store.value.editRows).length > 0 && 
+                        isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value) ) {
+                          console.log("Comments error field is empty, setting error mode to TRUE");
+                          // Set the comment field error state to true                               
+                          details.api.store.value.editRows[userSelectedRowId].comments.error=true;   
+                      }
+                  }
+                  // Check if user selected the checkbox and comments field is in edit mode, then set the error mode to false
+                  /* if(Object.keys(details.api.store.value.editRows).length > 0 && 
+                      isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value) ) {
+                        // Set the comment field error state to false                               
+                        details.api.store.value.editRows[userSelectedRowId].comments.error=true;                          
+                  } */
+                  // Check if user un-selected the checkbox and comments field is in edit mode, then set the error mode to true
+                  /* if(Object.keys(details.api.store.value.editRows).length > 0 && 
+                            isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value) ) {
+                    // Set the comment field error state to true                               
+                    details.api.store.value.editRows[userSelectedRowId].comments.error=true;    
+                  } */
+                
+
                   // if(isUserSelectedRowCommentsEmpty(newRowSelectionModel, rowSelectionModel, disbursementTableData)) {
-                  if(userSelectedRow?.comments) {
+                  /* if(userSelectedRow?.comments) {
                     console.log("Comments not empty");
                   } else {
                     console.log("Comments empty"); 
-                  }
+                  } */
                   // disbursementTableData[4].comments = {...disbursementTableData[4].comments, error: false};
                   console.log(rowSelectionModel);
                 }}                            

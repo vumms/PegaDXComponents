@@ -36,9 +36,21 @@
     {
       "format": "DATAPAGE",
       "name": "prefill",
-      "label": "Prefill data page",
+      "label": "Choose data page",
       "contextFilterProp": "contextClass",
       "lookupPathOverride": "viewMetadata.config"
+    },
+    {
+      "format": "DATAPAGE",
+      "name": "disbursementDetailsDataPage",
+      "label": "Choose disbursement details data page",
+      "contextFilterProp": "contextClass",
+      "lookupPathOverride": "viewMetadata.config"
+    },
+    {      
+      "name": "disbursementDetailsDPParams",
+      "label": "Enter disbursement details DP parameters",
+      "format": "TEXT"
     },
     { 
       "format": "TEXT",     
