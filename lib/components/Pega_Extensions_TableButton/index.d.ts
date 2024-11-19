@@ -1,6 +1,8 @@
+/// <reference types="react" />
 type TableButtonProps = {
     label: string;
     value: string;
+    amount: string;
     localAction: string;
     getPConnect: any;
 };
