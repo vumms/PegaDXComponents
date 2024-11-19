@@ -7,6 +7,8 @@ type PegaComponentsMUITableProps = {
     getPConnect: any;
     paginationSize: string;
     prefill: any;
+    disbursementDetailsDataPage: any;
+    disbursementDetailsDPParams: string;
     commentsDataPage: any;
 };
 declare const _default: (props: PegaComponentsMUITableProps) => JSX.Element;

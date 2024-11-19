@@ -5,6 +5,8 @@ type Props = {
     prefillProp: string;
     paginationSizeProp: string;
     commentsDataPageProp: string;
+    disbursementDetailsDataPageProp: any;
+    disbursementDetailsDPParamsProps: string;
 };
 export default function MUIEmbeddedData(props: Props): import("react/jsx-runtime").JSX.Element;
 export {};
