@@ -14,6 +14,7 @@ import MUIMandatoryCell from './MUIMandatoryCell';
 import MUIEmbeddedData from './MUIEmbeddedData';
 import MUIMasterDetailTable from './MUIMasterDetailTable';
 import { StyledGridContainer } from './styles';
+import './override.css';
 
 // Define the props 
 type PegaComponentsMUITableProps = {
@@ -28,6 +29,7 @@ type PegaComponentsMUITableProps = {
   disbursementDetailsDataPage: any;
   disbursementDetailsDPParams: string;
   commentsDataPage: any;
+  displayMode: 'Edit' | 'View';
 };
 
 // This props passed in combination of props from property panel (config.json) and run time props from Constellation
@@ -44,6 +46,7 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
           disbursementDetailsDataPage,
           disbursementDetailsDPParams,
           commentsDataPage,    
+          displayMode = 'Edit', 
         } = props;            
 
   const nCols = parseInt(NumCols, 10);
@@ -63,46 +66,24 @@ function PegaComponentsMuiTable(props: PegaComponentsMUITableProps) {
 
         </Grid>
         <br/>
-        <Fragment>
-            {/* MUI Editable Customer list just a test */}
-            {/* <Text variant='h2' status={undefined}>
-                MUI Editable customer list 
-            </Text>   */}  
-            {/* testing Adding comments here to test check in */}            
-            {/* <MUIEditableCustomerList dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
-            {/* Uncomment below block to test MUI Simple table https://mui.com/x/react-data-grid/ */}
-            {/* <Text variant='h2' status={undefined}>
-                MUI Simple table (@mui/x-data-grid)
-            </Text>                
-            <MUISimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/>
-            <br/> */}
-            {/* Uncomment below block to test MUI Editable Simple table https://mui.com/x/react-data-grid/recipes-editing/#system-EditingWithDatePickers.tsx */}
-          {/*  <Text variant='h2' status={undefined}>
-                MUI Editable simple table (@mui/x-data-grid)
-            </Text>                
-            <MUIEditableSimpleTable dataPageProp={dataPage} pConnectProp={getPConnect}/> */}
-            {/* Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/ */}
-            {/* <br/>
+        <Fragment>                        
+          {displayMode.toLowerCase() === 'edit' && (
             <Text variant='h2' status={undefined}>
-                MUI Complex table (@mui/x-data-grid-premium)
+                MUI Table in Edit mode using Embedded data (Reading from embedded page list) 
             </Text>
-            <MUIComplexTable/> */}
-            {/* Uncomment below block to test  MUI Complex table https://mui.com/x/react-data-grid/recipes-editing/#conditional-validation */}
-            <br/>
-            {/* <Text variant='h2' status={undefined}>
-                MUI Table using data reference (Directly reading from DataPage)  
-            </Text>
-            <MUIMandatoryCell pConnectProp={getPConnect} dataPageProp={dataPage} paginationSizeProp={paginationSize} />
-            <br/><br/> */}
+          )}  
+          {displayMode.toLowerCase() === 'view' && (
             <Text variant='h2' status={undefined}>
-                MUI Table using Embedded data (Reading from embedded page list) 
+                MUI Table in Review mode with selected records from embedded page list 
             </Text>
+          )}  
             <MUIEmbeddedData pConnectProp={getPConnect} 
                               commentsDataPageProp={commentsDataPage.referenceList} 
                               embedDataPageProp={embedDataPage} 
                               paginationSizeProp={paginationSize} 
                               disbursementDetailsDataPageProp={disbursementDetailsDataPage}
-                              disbursementDetailsDPParamsProps={disbursementDetailsDPParams}/>
+                              disbursementDetailsDPParamsProps={disbursementDetailsDPParams}
+                              displayMode={displayMode}/>
             <br/><br/>
             {/* <Text variant='h2' status={undefined}>
                 MUI Master details testing table 
