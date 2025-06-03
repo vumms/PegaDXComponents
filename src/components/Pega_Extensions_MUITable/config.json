@@ -57,6 +57,22 @@
       "name": "paginationSize",
       "label": "Enter pagination size"
     },
+    { 
+      "name": "displayMode", 
+      "label": "Display mode", 
+      "format": "SELECT", 
+      "defaultValue": "Edit", 
+      "source": [ 
+        { 
+          "key": "Edit", 
+          "value": "Edit" 
+        }, 
+        { 
+          "key": "View", 
+          "value": "View" 
+        } 
+      ] 
+    },
     {
       "name": "A",
       "label": "Region A",
