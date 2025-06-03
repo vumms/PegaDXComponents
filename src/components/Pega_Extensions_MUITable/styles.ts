@@ -9,7 +9,7 @@ export const StyledGridContainer = styled.div(() => {
   });
 
 export const StyledBox = styled('div')(() => ({
-    height: 300,
+    height: 400,
     width: '100%',
     '& .MuiDataGrid-cell--editing': {
       backgroundColor: 'rgb(255,215,115, 0.19)',
@@ -21,7 +21,7 @@ export const StyledBox = styled('div')(() => ({
     '& .Mui-error': {
       backgroundColor: 'rgb(255,18,28, 0.1)',
       color: '#d32f2f',      
-    },
+    },    
 }));
 
 export const StyledWrapper = styled.div(() => {
