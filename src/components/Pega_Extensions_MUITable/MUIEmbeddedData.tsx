@@ -3,20 +3,21 @@ import {
   GridColDef,
   GridRowsProp,    
   GridRowSelectionModel, 
-  GridCallbackDetails, 
+  // GridCallbackDetails, 
   GridRowId,  
   DataGrid,  
   useGridApiRef,
+  GridToolbar,
 } from '@mui/x-data-grid';
-import { DataGridPro,     
-  DataGridProProps } from '@mui/x-data-grid-pro'; 
+/* import { DataGridPro,     
+  DataGridProProps } from '@mui/x-data-grid-pro';  */
 import { 
   Button, 
   /* ComboBox, */
   Flex,  
   RadioButtonGroup,
   RadioButton,
-  Modal,   
+  Modal,    
   Card,  
   CardContent, 
   TextArea, 
@@ -28,6 +29,7 @@ import {
 /*   import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack'; */
+/* import Modal from '@mui/material/Modal'; */
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 // import { styled } from '@mui/material/styles';
@@ -40,6 +42,8 @@ import { getDisbursementEmbeddedData,
         isEmpty,
         // findRowDetailById,        
         isUserSelectedRowCommentsEmpty,
+        getPreSelectedTableDataListIds,
+        getPreSelectedTableDataList,
        } from './utils';
 
 import { randomId } from '@mui/x-data-grid-generator';
@@ -105,6 +109,121 @@ function DetailPanelContent({ row: rowProp }: { row: Orders }) {
   );   
 }
 
+const ShowMUIModal = ( props ) => {
+  console.log(props);    
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  useEffect(() => {
+    handleOpen();
+  });
+  
+  return (          
+
+    <div>      
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Text in a modal
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+          </Typography>
+        </Box>
+      </Modal>
+    </div>
+  );   
+}
+
+const ShowDummyDetailsModal = ( props ) => {
+  console.log(props);    
+  const [disbursementDetails, setDisbursementDetails] = useState(); 
+  const [emptyData, setEmptyData] = useState(false); 
+  const { dismiss } = useModalContext();
+  
+  const columns: GridColDef[] = [
+    { field: 'item', headerName: 'Item', width: 120, editable: false },
+    { field: 'amt', headerName: 'Amount', width: 120, editable: false },    
+  ];
+
+  const actions = useMemo(() => {
+    return (
+      
+        <Button
+          onClick={() => {              
+            dismiss();              
+          }}
+        >
+          Close
+        </Button>
+      
+    );
+  }, [dismiss]);
+  
+  useEffect(() => {    
+
+  }, []);
+  
+  return (          
+    <Modal
+      actions={actions}
+      autoWidth={false}
+      stretch={false}
+      center={false}  
+      heading='View details modal'   
+      id='rowDetailModal'
+    >
+          <form>    
+           <Box sx={{ height: 400, width: '100%' }}>                                      
+              <div style={{ height: 300, width: '100%' }}>
+                <h1>Disbursement details</h1>                
+                { emptyData? (
+                  <Banner
+                    variant='urgent'
+                    messages={['No details record found.']}
+                    // onDismiss={dismiss()}
+                    // handle={bannerHandleRef}
+                  />
+                  ) : (
+                    <DataGrid
+                      rows={props.selectedRowsData?.detailsData}
+                      columns={columns}
+                      slots={{
+                        toolbar: GridToolbar,
+                      }}
+                      slotProps={{
+                        toolbar: {
+                          showQuickFilter: true,
+                        },
+                      }}
+                    />
+                  )
+                }
+                <br></br><br></br>
+                <h2>Disbursement details Pega Table component</h2>
+                <Table
+                      title='Breakdown of amount'
+                      hoverHighlight='false'                                
+                      data={props.selectedRowsData?.detailsData}
+                      columns={[
+                        { renderer: 'item', label: 'Item' },
+                        { renderer: 'amt', label: 'Amount' },
+                      ]}
+
+                    /> 
+              </div>
+            </Box>                  
+          </form>          
+    </Modal> 
+  );   
+}
+
 
 const ShowViewMoreDetailModal = ( props ) => {
   console.log(props);    
@@ -138,7 +257,7 @@ const ShowViewMoreDetailModal = ( props ) => {
   }, [dismiss]);
 
   const getDisbursementDetailsTableData = useCallback(() => {    
-    props.disbursementDetailsDataPageProp.parameters['DisbursementID'] = props.selectedRowsData['did'];    
+    props.disbursementDetailsDataPageProp.parameters['DisbursementID'] = props.selectedRowsData['Disbursement_id'];    
     getDataPageResults(props.pConnectProp, props.disbursementDetailsDataPageProp).then(data => {                  
       setDisbursementDetails(getDisbursementDetailsDataAsRowData(data));
       console.log(data);
@@ -148,7 +267,7 @@ const ShowViewMoreDetailModal = ( props ) => {
   useEffect(() => {
     console.log('Inside showviewmoredetailsmodal useeffect');
     // Check if a valid id exist before calling dataPage
-    if(isEmpty(props.selectedRowsData['did'])) {
+    if(isEmpty(props.selectedRowsData['Disbursement_id'])) {
       setEmptyData(true);
     } else {
       getDisbursementDetailsTableData();
@@ -168,8 +287,7 @@ const ShowViewMoreDetailModal = ( props ) => {
       id='rowDetailModal'
     >
       {/* <Card>
-        <CardContent> */}
-        
+        <CardContent> */}        
           <form>    
            <Box sx={{ height: 400, width: '100%' }}>                       
                {/* <Table
@@ -195,12 +313,20 @@ const ShowViewMoreDetailModal = ( props ) => {
                     <DataGrid
                       rows={disbursementDetails}
                       columns={columns}
+                      slots={{
+                        toolbar: GridToolbar,
+                      }}
+                      slotProps={{
+                        toolbar: {
+                          showQuickFilter: true,
+                        },
+                      }}
                     />   
                   )
                 }
               </div>
             </Box>                  
-          </form>
+          </form>          
         
   {/*       </CardContent>
       </Card> */}
@@ -218,29 +344,6 @@ const ShowBulkUpdateModalDialog = ( props ) => {
 
   // Modal action buttons function
   const actions = useMemo(() => {
-
-    // Function to update comments using pConnect API
-    /* const updateComments = async (rowIndex: number, newComment: string) => {    
-      const embedObject = `${props.embedDataPageProp}[${rowIndex}]`;    
-      const embedPageReference = `${props.pageRef}.${embedObject}`;
-      console.log("Page reference=", embedPageReference);
-      try {    
-        // Use the below code as workaround to bypass the bug in the product, INC to be raised
-        props.pConnectProp()._pageReference = embedPageReference;
-        props.pConnectProp().getActionsApi().updateFieldValue('.Comment', newComment, 
-        {
-          removePropertyFromChangedList: false,
-          skipDirtyValidation: false
-        });
-        // Reset page reference back to original reference
-        props.pConnectProp()._pageReference = props.pageRef;
-        // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
-        props.disbursementTableData[rowIndex].comments = newComment;          
-      } catch (error) {
-        console.log(error);
-      } 
-    } */
-
     // Function called to collect required information before updating REDUX store
     const updateTableRows = () => {
       // Read all the modal form data
@@ -248,26 +351,24 @@ const ShowBulkUpdateModalDialog = ( props ) => {
       // Default selection is all table rows
       let rowsToBeUpdated = props.disbursementTableData;
       if(modalFormContent.rbSelRows === 'on') {
-        rowsToBeUpdated = props.selectedRowsParam;
+        rowsToBeUpdated = props.disbursementTableData.filter(obj => obj.Select === true)
       } 
-      if(modalFormContent.rbUnSelRows === 'on') {
-        rowsToBeUpdated = props.unSelectedRowsParam;
+      if(modalFormContent.rbUnSelRows === 'on') {        
+        rowsToBeUpdated = props.disbursementTableData.filter(obj => obj.Select === false)
       } 
   
-      // Update the comments to all the rows
+      // Update the comments field based on the radio button selection all/selected/unselected rows
       rowsToBeUpdated.forEach((row) => {      
-        const newCommentValue = commentsToUpdate;
         const rowId = row.id;
         const indexOfRow = props.disbursementTableData.findIndex(obj => obj.id === rowId);
         console.log('Row to be updated=', row);
-        console.log('New comments=', newCommentValue);
+        console.log('Comments value to be updated=', commentsToUpdate);
         console.log('RowId to be updated=', rowId);
-        props.updateComments(indexOfRow, newCommentValue);
-        // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
-        // props.disbursementTableData[indexOfRow].comments = newCommentValue;              
+        // This method also updates the disbursementTable redux Store 
+        props.updateComments(indexOfRow, commentsToUpdate);         
         console.log("Successfully updated row");
       });
-      props.refreshTableData();
+      props.refreshTableData(); // TODO find out why props disbursementTable is not getting refreshed if we don't all this method?
       dismiss(); // Close the window
     }
     return (
@@ -407,8 +508,12 @@ export default function MUIEmbeddedData(props: Props) {
       commentsDataPageProp,
       disbursementDetailsDataPageProp,
       disbursementDetailsDPParamsProps,      
+      displayMode,
   } = props;       
   const [disbursementTableData, setDisbursementTableData] = useState<GridRowsProp>([]);  
+  const [preSelectedTabledDataIds, setPreSelectedTabledDataIds] = useState<GridSelectionModel>([]); // Preselect selectable rows
+  const [preSelectedTabledData, setPreSelectedTabledData] = useState<GridRowsProp>([]); // Preselect selectable rows
+  const [selectedRowIds, setSelectedRowsIds] = useState([]);  // User selected row Ids are stored in this props
   const [commentsListData, setCommentsListData] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -441,28 +546,6 @@ export default function MUIEmbeddedData(props: Props) {
     setFormContent({ ...formContent, [event.target.id]: event.target.value });    
   };
 
-  // TODO generic function to be used for any field update using pConnect API - Should use this to match field props
-  /* const updateFieldUsingPConnect = async (rowIndex: number, field: string, fieldValue: string) => {    
-    const embedObject = `${embedDataPageProp}[${rowIndex}]`;    
-    const embedPageReference = `${pageRef}.${embedObject}`;
-    console.log("Page reference=", embedPageReference);
-    try {    
-      // Use the below code as workaround to bypass the bug in the product, INC to be raised
-      pConnectProp()._pageReference = embedPageReference;
-      pConnectProp().getActionsApi().updateFieldValue(`.${field}`, fieldValue, 
-      {
-        removePropertyFromChangedList: false,
-        skipDirtyValidation: false
-      });
-      // Reset page reference back to original reference
-      pConnectProp()._pageReference = pageRef;
-      // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
-      disbursementTableData[rowIndex].$field = fieldValue;       
-    } catch (error) {
-      console.log(error);
-    } 
-  } */
-
   const updateComments = async (rowIndex: number, newComment: string) => {    
     const embedObject = `${embedDataPageProp}[${rowIndex}]`;    
     const embedPageReference = `${pageRef}.${embedObject}`;
@@ -470,11 +553,7 @@ export default function MUIEmbeddedData(props: Props) {
     try {    
       // Use the below code as workaround to bypass the bug in the product, INC to be raised
       pConnectProp()._pageReference = embedPageReference;
-      pConnectProp().getActionsApi().updateFieldValue('.Comment', newComment, 
-      {
-        removePropertyFromChangedList: false,
-        skipDirtyValidation: false
-      });
+      pConnectProp().getActionsApi().updateFieldValue('.Comments', newComment);
       // Reset page reference back to original reference
       pConnectProp()._pageReference = pageRef;
       // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
@@ -484,42 +563,32 @@ export default function MUIEmbeddedData(props: Props) {
     } 
   }
 
-  const updateSelect = async (rowIndex: number, selectState: boolean) => {    
+ const updateSelect = async (rowIndex: number, selectState: boolean) => {    
     const embedObject = `${embedDataPageProp}[${rowIndex}]`;    
     const embedPageReference = `${pageRef}.${embedObject}`;
     console.log("Page reference=", embedPageReference);
     try {    
       // Use the below code as workaround to bypass the bug in the product, INC to be raised
-      pConnectProp()._pageReference = embedPageReference;
-      pConnectProp().getActionsApi().updateFieldValue('.Select', selectState, 
-      {
-        removePropertyFromChangedList: false,
-        skipDirtyValidation: false
-      });
+      pConnectProp()._pageReference = embedPageReference;      
+      pConnectProp().getActionsApi().updateFieldValue('.Select', selectState);      
+      // This line works same as above API call -> pConnectProp().setValue('.Select', selectState);     
       // Reset page reference back to original reference
       pConnectProp()._pageReference = pageRef;
       // Lets update the state disbursementTableData with new comments value to reflect the changes in the rendered table
-      disbursementTableData[rowIndex].Select = selectState;       
+      // disbursementTableData[rowIndex].Select = selectState;       
     } catch (error) {
       console.log(error);
     } 
   }
-  
+ 
   const handleViewDetailsClick = (id: GridRowId) => () => {
     console.log(id);    
     const selectedRowsData = disbursementTableData.find((row) => row.id === id.toString()); 
-    console.log(selectedRowsData);
-    // const dataPageParams = {disbursementDetailsDPParamsProps: selectedRowsData};
-    // Set the disbursement id as parameter
-    /* let disbursementDetailData = {};    
-    disbursementDetailsDataPageProp.parameters['DisbursementID'] = id;
-    getDataPageResults(pConnectProp, disbursementDetailsDataPageProp).then(data => {                  
-      disbursementDetailData = data;
-      console.log(data);
-    });   
-    // const disbursementDetailData = getDataPageResults(pConnectProp, disbursementDetailsDataPageProp);
-    console.log(disbursementDetailData); */
-    create(ShowViewMoreDetailModal, { ...props, selectedRowsData });    
+    console.log(selectedRowsData);    
+    // Below line of code is for DJCS data model
+    // create(ShowViewMoreDetailModal, { ...props, selectedRowsData });    
+    // Below line of code is for Local dummy data model
+    create(ShowDummyDetailsModal, { ...props, selectedRowsData });    
   };
 
   const columns: GridColDef[] = [
@@ -530,8 +599,9 @@ export default function MUIEmbeddedData(props: Props) {
       width: 120,
       editable: true,
     }, */
+    { field: 'Select', headerName: 'Select state', type: 'boolean', width: 150 },
     {
-      field: 'comments',
+      field: 'Comments',
       headerName: 'Comments',
       type: 'string',      
       width: 360,
@@ -544,11 +614,11 @@ export default function MUIEmbeddedData(props: Props) {
           }   
       },      
     },
-    { field: 'bty', headerName: 'Beneficiary type', width: 120, editable: false },
-    { field: 'bnam', headerName: 'Beneficiary name', width: 120, editable: false },
-    { field: 'bid', headerName: 'Beneficiary ID', width: 120, editable: false },    
+    { field: 'Beneficiary_type', headerName: 'Beneficiary type', width: 120, editable: false },
+    { field: 'Beneficiary_name', headerName: 'Beneficiary name', width: 120, editable: false },
+    { field: 'Beneficiary_id', headerName: 'Beneficiary ID', width: 120, editable: false },    
     {
-      field: 'amt',
+      field: 'Amount',
       headerName: 'Amount',
       type: 'number',
       width: 120,
@@ -561,9 +631,9 @@ export default function MUIEmbeddedData(props: Props) {
         }).format(params);
       }
     },
-    { field: 'type', headerName: 'Type', width: 120, editable: false },    
-    { field: 'did', headerName: 'Disbursement ID', width: 120, editable: false },    
-    { field: 'bsts', headerName: 'Status', width: 120, editable: false },                    
+    { field: 'Type', headerName: 'Type', width: 120, editable: false },    
+    { field: 'Disbursement_id', headerName: 'Disbursement ID', width: 120, editable: false },    
+    { field: 'Status_x', headerName: 'Status', width: 120, editable: false },                    
     { 
       field: 'actions',
       type: 'actions',
@@ -582,35 +652,25 @@ export default function MUIEmbeddedData(props: Props) {
     },                    
   ];
 
+  // Set the updated disbursementTableData to the state variable
+  /* const updateDisbursementTableData = (updatedDisbursementTableData: any) => {
+    setDisbursementTableData(updatedDisbursementTableData);
+  } */
+
   // Fetch embedded data from the case summary content
   const refreshTableData = useCallback(() => {    
+    console.log('DisplayMode=', displayMode);
     // Below method call directly reads from the embedded data page
     getDisbursementEmbeddedData(pConnectProp, embedDataPageProp).then(data => {                  
       setDisbursementTableData(data);
-    });   
-    /* if(disbursementTableData) {
-      console.log("disbursementTableData is Empty");
-      
-    } else {
-      console.log("disbursementTableData is NOT Empty, refreshing from state");
-      setDisbursementTableData(disbursementTableData);
-    } */
-    
-
-    // Read the Comments DP list     
-    /* getDataPageResults(pConnectProp, commentsDataPageProp).then(data => {
-      setCommentsListData(data);
-    }) */
-    // Below call reads from directly data page
-    /* let dataPageParam = prefillProp; 
-    if(!prefillProp) { // If prefill is null, then get it from the dataPage props
-      dataPageParam = dataPageProp;
-    } */
-   // Below method will fetch directly from the data page 
-   /*  getDataPageResults(pConnectProp, dataPageProp).then(data => {                  
-      setDisbursementTableData(getDisbursementDataAsRowData(data));
-    });  */
-  }, [pConnectProp, embedDataPageProp])
+      // Set preselected table checkbox column
+      const preSelectedTableTableDataListIds = getPreSelectedTableDataListIds(data);
+      setPreSelectedTabledDataIds(preSelectedTableTableDataListIds);
+      // Always set SelectionModel with preselected ids so when the page is reloaded or  it retains the checked status
+      setSelectionModel(preSelectedTableTableDataListIds);  
+      setPreSelectedTabledData(getPreSelectedTableDataList(data));
+    });       
+  }, [pConnectProp, embedDataPageProp, displayMode])
 
 
   const modalVisibility = (action: string) => {
@@ -631,27 +691,21 @@ export default function MUIEmbeddedData(props: Props) {
        });
       setShowBulkUpdateModal(false);      
       console.log('Hide bulk upload modal Form Content: ', formContent);
-    }
-    /* if (action === closeModal) {
-      setFormContent({ BulkUpdateCommentsField: '', 
-        CheckboxIdSelectedRows: '', 
-        CheckboxIdUnSelectedRows: '',  
-        rbRowSelection: ''
-       });
-      setShowModal(false);      
-      console.log('Hide Form Content: ', formContent);
-    } */
+    }    
   };
 
   useEffect(() => {
     /* TODO: Do I need to check if the table is empty or can I load the data
         Retrieve embedded list of data page only once for the first time  */
-    refreshTableData();
-    
+    refreshTableData();        
     
     // Set the page reference only once if its empty or undefined  
     if(!pageRef) {
       setPageRef(pConnectProp().getPageReference());
+      // Set the tree manager context once
+      // (window as any).PCore.getContextTreeManager().addFieldNode(pConnectProp().getContextName(), `${pConnectProp().getPageReference()}.${embedDataPageProp}`, "", "");
+      (window as any).PCore.getContextTreeManager().addPageListNode(pConnectProp().getContextName(), pConnectProp().getPageReference(), pConnectProp().viewName, `.${embedDataPageProp}`);
+
     }    
   }, [pConnectProp, pageRef, embedDataPageProp, refreshTableData]);
 
@@ -666,38 +720,13 @@ export default function MUIEmbeddedData(props: Props) {
     return (unSelectedRowsData);
   }
   
-  const handleOpenBulkUpdateClick = () => {
-    const selectedRowsParam = getSelectedRows();
-    const unSelectedRowsParam = getUnSelectedRows();
-    create(ShowBulkUpdateModalDialog, { ...props, selectedRowsParam, unSelectedRowsParam, disbursementTableData, pageRef, updateComments, refreshTableData });
-    // refreshTableData(); // Refresh the table data to show updated values
+  const handleOpenBulkUpdateClick = () => {    
+    create(ShowBulkUpdateModalDialog, { ...props, disbursementTableData, updateComments, refreshTableData });        
   }
   
   const bulkUpdateAllRows = () => {
     // Read all the modal form data
-    const commentsToUpdate = formContent.BulkUpdateCommentsField;
-    /* const checkBoxSelectedState = formContent.CheckboxIdSelectedRows;
-    const checkBoxUnSelectedState = formContent.CheckboxIdUnSelectedRows; */   
-
-   /*  console.log(commentsToUpdate);
-    console.log(checkBoxSelectedState);
-    console.log(checkBoxUnSelectedState);     */   
-
-    // Default selection is all table rows
-    let rowsToBeUpdated = disbursementTableData;
-   /* if(checkBoxSelectedState === 'on') {
-      rowsToBeUpdated = getSelectedRows();
-    } 
-    if(checkBoxUnSelectedState === 'on') {
-      rowsToBeUpdated = getUnSelectedRows();
-    }
-    if(checkBoxSelectedState === 'on' && checkBoxUnSelectedState === 'on') {
-      rowsToBeUpdated = disbursementTableData;
-    } */
-    // Radio button selection 
-    /* if(formContent.rbAllRows === 'on') {
-      rowsToBeUpdated = disbursementTableData;
-    }  */
+    const commentsToUpdate = formContent.BulkUpdateCommentsField;    
     if(formContent.rbSelRows === 'on') {
       rowsToBeUpdated = getSelectedRows();
     } 
@@ -728,137 +757,98 @@ export default function MUIEmbeddedData(props: Props) {
     modalVisibility(closeBulkUpdateModal); // Close the bulk update modal dialog after the update
     // showBulkUpdateModal(false);
   }
-
-  const updateSelectState = (selectedRowIds: any) => {
-    console.log(selectedRowIds);
-    if(selectedRowIds.length > 0) {
-      // loop thru all the selectedRowIds to update the select value to true
-      selectedRowIds.forEach((rowId) => { 
-        const indexOfRow = disbursementTableData.findIndex(obj => obj.id === rowId);
-        updateSelect(indexOfRow, true); 
-      })
-    } else {
-      // loop thru entire disbursementTable table rows and update the select value to false
-      disbursementTableData.forEach((row) => { 
-        // update select state for the row id
-        const indexOfRow = disbursementTableData.findIndex(obj => obj.id === row.id);
-        updateSelect(indexOfRow, false); 
-      })
-    }    
-    console.log("After state update=", disbursementTableData);
-  }
-
   
-const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetailPanelContent']>>(({ row }) => <DetailPanelContent row={row} />, []);
+  const getDetailPanelContent = useCallback<NonNullable<DataGridProProps['getDetailPanelContent']>>(({ row }) => <DetailPanelContent row={row} />, []);
 
+  // This method is triggered from onRowSelectionModelChange 
+  const handleSelectionChange = (newSelection: any) => {
+    let selectedState = true; // defaulted
+    let indexOfSelectedRow = 0; // defaulted
 
+    // Determine if a row was selected or unselected
+    if (newSelection.length > selectionModel.length) {
+      // Row selected, select state should be set to TRUE
+      const added = newSelection.filter(id => !selectionModel.includes(id));
+      // console.log('Selected row ID(s):', added);      
+      indexOfSelectedRow = disbursementTableData.findIndex(obj => obj.id === added.toString());
+      // console.log('Index of Selected row ID(s):', indexOfSelectedRow);
+      selectedState = true;  // Set selected state to true      
+
+    } else if (newSelection.length < selectionModel.length) {
+      // Row unselected, select state should be set to FALSE
+      const removed = selectionModel.filter(id => !newSelection.includes(id));
+      // console.log('Unselected row ID(s):', removed);
+      indexOfSelectedRow = disbursementTableData.findIndex(obj => obj.id === removed.toString());
+      // console.log('Index of Unselected row ID(s):', indexOfSelectedRow);
+      selectedState = false;  // Set selected state to false
+    }
+    console.log('Selected state: ', selectedState, ' Index of row: ', indexOfSelectedRow);
+    // Call function to update case embedded data using PConnect API and construct page instructions
+    updateSelect(indexOfSelectedRow, selectedState);
+    // Lets update the disbursementTableData
+    disbursementTableData[indexOfSelectedRow].Select = selectedState;  
+    setSelectionModel(newSelection);
+  };
 
   return (        
       <StyledWrapper>
       {/* <div style={{ height: 400, width: '100%' }}> */}
         <StyledBox>
-            <Flex container={{ direction: 'row', gap: 1, pad: 1 }}>                                       
-                <Button variant='secondary' onClick={refreshTableData}>Refresh embedded data</Button> 
-                <Button variant='primary' onClick={() => {                            
-                            modalVisibility(openBulkUpdateModal);
-                          }} >Bulk update - single modal dialog</Button>    
-                <Button variant='primary' onClick={() => {                            
-                            handleOpenBulkUpdateClick();
-                          }} >Bulk update - multi modal dialog</Button>    
-
-                <Button variant='secondary' onClick={() => {                            
-                            testingModalManager();
-                          }} >Test ModalManager</Button>                              
-                <Button variant='secondary' onClick={() => {                            
-                            MUIModalDialogTesting();
-                          }} >Open MUI Dialog</Button>                                                        
-            </Flex>
-            <Box sx={{ height: 370, width: '100%' }}>
-              <DataGridPro
-                rows={disbursementTableData} 
-                columns={columns}   
-                pagination
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 5 } }, // TODO paginationSizeProp to be used here, there is some warning and error generated when props are used
-                }}
-                pageSizeOptions={[5, 10, 25, { value: -1, label: 'All' }]}      
-                checkboxSelection 
-                disableRowSelectionOnClick
-                getDetailPanelHeight={() => 'auto'}
-                getDetailPanelContent={getDetailPanelContent}
-                onCellEditStop={(params: GridCellEditStopParams, event: MuiEvent) => {
-                  const activeSelectedRow = params.row;
-                  const activeSelectedRowId = params.row.id;
-                  const activeSelectedRowComment = event.target.value;
-                  const indexOfRow = disbursementTableData.findIndex(obj => obj.id === activeSelectedRowId);
-                  console.log(activeSelectedRow, activeSelectedRowId, activeSelectedRowComment, indexOfRow);
-                  updateComments(indexOfRow, activeSelectedRowComment);
-                }}   
-                onRowSelectionModelChange={(newRowSelectionModel: GridRowSelectionModel, details: GridCallbackDetails) => {
-                  // TODO
-                  // If newRowSelectionModel is Empty { Set all disbursement table rows select value to false }
-                  // else { set all selected rows id relevant disbursement table rows select value to true }
-                  updateSelectState(newRowSelectionModel); // Update row select status
-                  setRowSelectionModel(newRowSelectionModel);                  
-                  console.log(details);
-                  console.log("SelectedRows=", rowSelectionModel, " Newly selected rows=", newRowSelectionModel);
-                  console.log('isRowSelectable=', details.api.isRowSelectable(), ' isRowSelected=', details.api.isRowSelected());
-                  // Check if the comments field is empty 
-                  console.log(apiRef);
-                  /* const userSelectedRowId = findUniqueId(newRowSelectionModel, rowSelectionModel);
-                  const userSelectedRow = details.api.getRow(userSelectedRowId); */
-                  // Another way to retrieve the selected row id
-                  const userSelectedRowId = details.api.store.value.focus.cell?.id;  // Its possible sometimes at id level we might have null
-                  const checkedState = newRowSelectionModel.includes(userSelectedRowId);
-                 
-                  /* // This is the code to retrieve or change the state of comments error to false
-                  details.api.store.value.editRows['69d97702-1c4d-5547-83b1-478e178f9522'].comments.error=false */
-
-                  /* console.log(!isEmpty(userSelectedRowId));
-                  console.log(details.api.store.value.editRows);
-                  console.log(details.api.store.value.editRows[userSelectedRowId].comments.value);
-                  console.log(isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value)); */
-                  if( checkedState && Object.keys(details.api.store.value.editRows)?.length > 0 ) {
-                      /* Object.keys(details.api.store.value.editRows).length > 0 && 
-                      isEmpty(details.api.store.value.editRows[zUserSelectedRowId].comments.value)  */
-                      console.log(userSelectedRowId, " checked");
-                      // Set the comment field error state to false                               
-                      details.api.store.value.editRows[userSelectedRowId].comments.error=false;
-
-                  } else {
-                    console.log(userSelectedRowId, " un-checked");
-                    if( Object.keys(details.api.store.value.editRows).length > 0 && 
-                        isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value) ) {
-                          console.log("Comments error field is empty, setting error mode to TRUE");
-                          // Set the comment field error state to true                               
-                          details.api.store.value.editRows[userSelectedRowId].comments.error=true;   
-                      }
-                  }
-                  // Check if user selected the checkbox and comments field is in edit mode, then set the error mode to false
-                  /* if(Object.keys(details.api.store.value.editRows).length > 0 && 
-                      isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value) ) {
-                        // Set the comment field error state to false                               
-                        details.api.store.value.editRows[userSelectedRowId].comments.error=true;                          
-                  } */
-                  // Check if user un-selected the checkbox and comments field is in edit mode, then set the error mode to true
-                  /* if(Object.keys(details.api.store.value.editRows).length > 0 && 
-                            isEmpty(details.api.store.value.editRows[userSelectedRowId].comments.value) ) {
-                    // Set the comment field error state to true                               
-                    details.api.store.value.editRows[userSelectedRowId].comments.error=true;    
-                  } */
-                
-
-                  // if(isUserSelectedRowCommentsEmpty(newRowSelectionModel, rowSelectionModel, disbursementTableData)) {
-                  /* if(userSelectedRow?.comments) {
-                    console.log("Comments not empty");
-                  } else {
-                    console.log("Comments empty"); 
-                  } */
-                  // disbursementTableData[4].comments = {...disbursementTableData[4].comments, error: false};
-                  console.log(rowSelectionModel);
-                }}                            
-                rowSelectionModel={rowSelectionModel}                
-              />
+            {displayMode.toLowerCase() === 'edit' && ( 
+              <Flex container={{ direction: 'row', gap: 1, pad: 1 }}>                                       
+                  <Button variant='secondary' onClick={refreshTableData}>Refresh embedded data</Button>                  
+                  <Button variant='primary' onClick={() => {                            
+                              handleOpenBulkUpdateClick();
+                            }} >Bulk update - multi modal dialog</Button>    
+                 <Button variant='secondary' disabled onClick={() => {                            
+                              modalVisibility(openBulkUpdateModal);
+                            }} >Bulk update - single modal dialog</Button>    
+                  <Button variant='secondary' disabled onClick={() => {                            
+                              testingModalManager();
+                            }} >Test ModalManager</Button>                              
+                  <Button variant='secondary' disabled onClick={() => {                               
+                              ShowMUIModal(props);
+                            }} >Open MUI Dialog</Button>    
+                                                                                 
+              </Flex>
+            )} 
+            <Box sx={{ height: 370, width: '100%' }}>  
+              {displayMode.toLowerCase() === 'view' && (
+                <DataGrid
+                  rows={preSelectedTabledData} 
+                  columns={columns}   
+                  pagination
+                  initialState={{                  
+                    pagination: { paginationModel: { pageSize: 5 } }, // TODO paginationSizeProp to be used here, there is some warning and error generated when props are used
+                  }}
+                  pageSizeOptions={[5, 10, 25, { value: -1, label: 'All' }]}        
+                />
+              )}   
+              {displayMode.toLowerCase() === 'edit' && (    
+                <DataGrid
+                  rows={disbursementTableData} 
+                  columns={columns}   
+                  pagination
+                  initialState={{                  
+                    pagination: { paginationModel: { pageSize: 5 } }, // TODO paginationSizeProp to be used here, there is some warning and error generated when props are used
+                  }}
+                  pageSizeOptions={[5, 10, 25, { value: -1, label: 'All' }]}      
+                  checkboxSelection 
+                  disableRowSelectionOnClick                  
+                  rowSelectionModel={selectionModel}
+                  getDetailPanelHeight={() => 'auto'}
+                  getDetailPanelContent={getDetailPanelContent}
+                  onCellEditStop={(params: GridCellEditStopParams, event: MuiEvent) => {
+                    const activeSelectedRow = params.row;
+                    const activeSelectedRowId = params.row.id;
+                    const activeSelectedRowComment = event.target.value;
+                    const indexOfRow = disbursementTableData.findIndex(obj => obj.id === activeSelectedRowId);
+                    console.log(activeSelectedRow, activeSelectedRowId, activeSelectedRowComment, indexOfRow);
+                    updateComments(indexOfRow, activeSelectedRowComment);
+                  }}   
+                  onRowSelectionModelChange={handleSelectionChange}                                               
+                />   
+              )}           
             </Box>
           {showBulkUpdateModal && (
               <Modal              
