@@ -1,0 +1,10 @@
+/* Write any CSS overrides here based on the DOM and styling of MUI or Pega generated HTML file */
+
+/* Below is the CSS for fixing the MUI table column filter popup window Z-index when 
+ viewing inside Pega modal dialog :window-inactive
+ */
+ .MuiPopper-root.MuiDataGrid-menu,
+ .MuiPopper-root.MuiDataGrid-panel {
+   z-index:10000;
+ }
+
