@@ -146,34 +146,48 @@ export const getDisbursementEmbeddedData = async (paramPConn: any, paramEmbedNam
         const rowArray: any = [];        
         arrayOfEmbeddedList?.map((listitem: any) => ( 
             rowArray.push({
-                /* id: listitem['EmbedListUUID__'], // Use the same embedded list UUID */
-                id: (randomId()),
-                bty: listitem['BeneficiaryType'],
-                bnam: listitem['BeneficiaryName'],
-                bid: listitem['BeneficiaryID'],
-                amt: listitem['Amount'],
-                type: listitem['Type'],
-                did: listitem['DisbursementID'],
-                bsts: 'Fixed-Reissue',                
-                /* isAccepted: true, */
-                comments: listitem['Comment'], 
+                id: listitem['pyGUID'], // Unique-id is mandatory for Table rows
+                // id: randomId(),
+                Beneficiary_type: listitem['Beneficiary_type'],
+                Beneficiary_name: listitem['Beneficiary_name'],
+                Beneficiary_id: listitem['Beneficiary_id'],
+                Amount: listitem['Amount'],
+                Type: listitem['Type'],
+                Disbursement_id: listitem['Disbursement_id'],
+                Status_x: listitem['Status'],   // Status has some special keyword in MUI library so had to store it under different variable name                                
+                Comments: listitem['Comments'], 
                 Select: listitem['Select'],  // boolean select state of each row                   
                 detailsData: [
                     { id: randomId(), item: 'detailsField1', amt: '100' },
                     { id: randomId(), item: 'detailsField2', amt: '100' },
-                    { id: randomId(), item: 'detailsField3', amt: '100' },
+                    { id: randomId(), item: 'detailsField3', amt: '100' }, 
                     { id: randomId(), item: 'detailsField4', amt: '100' },
                     { id: randomId(), item: 'detailsField5', amt: '100' },
                 ],
-            })
+            })                       
             )
         );
+        // TODO for each row add the context tree manager
+        // (window as any).PCore.getContextTreeManager().addFieldNode("app/primary_1/workarea_1", "caseInfo.content.DisbursementList", "", "");
+        // (window as any).PCore.getContextTreeManager().addFieldNode(paramPConn().getContextName(), paramPConn().getPageReference(), "", "");
         console.log(rowArray);     
         return(rowArray);
     }
     catch (error) {
         console.log(error);
     }
+}
+
+/* Function to lookup select state TRUE to return list of pre-selected rows ids ONLY */
+export const getPreSelectedTableDataListIds = (disbursementTableData: any) => {        
+    const preSelectedRowsIds = disbursementTableData.filter((row: any) => row.Select === true).map((row: any) => row.id);
+    return (preSelectedRowsIds);
+}
+
+/* Function to lookup select state TRUE to return list of pre-selected rows */
+export const getPreSelectedTableDataList = (disbursementTableData: any) => {        
+    const preSelectedRows = disbursementTableData.filter((row: any) => row.Select === true).map((row: any) => row);
+    return (preSelectedRows);
 }
 
 /* Function to read disbursement datapage results and put them in a row array for Table component to render */
