@@ -1,0 +1,32 @@
+{
+  "name": "Pega_Extensions_PDFTemplate",
+  "label": "PDF Template to generate PDF document",
+  "description": "PDF generated template",
+  "organization": "Pega",
+  "version": "1.0.0",
+  "library": "Extensions",
+  "allowedApplications": [],
+  "componentKey": "Pega_Extensions_PDFTemplate",
+  "type": "Template",
+  "subtype": "DETAILS",
+  "icon": "TwoColumnDetails.svg",
+  "properties": [
+    {
+      "name": "base64String",
+      "label": "Enter base64 string of PNG file",
+      "format": "TEXT"
+    }, 
+    {
+      "name": "showPDFDownloadButton",
+      "label": "Show PDF download button",
+      "format": "BOOLEAN"
+    },    
+    {
+      "name": "A",
+      "label": "Region A",
+      "format": "CONTENTPICKER",
+      "addTypeList": ["Fields", "Views"],
+      "allowCreatingGroup": true
+    }    
+  ]
+}
