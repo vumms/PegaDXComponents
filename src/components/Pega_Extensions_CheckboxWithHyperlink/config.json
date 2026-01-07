@@ -1,0 +1,205 @@
+{
+  "name": "Pega_Extensions_CheckboxWithHyperlink",
+  "label": "Checkbox to include hyperlink in caption",
+  "description": "Checkbox UI control to include hyperlink/free text as caption/label",
+  "organization": "Pega",
+  "version": "1.0.0",
+  "library": "Extensions",
+  "allowedApplications": [],
+  "componentKey": "Pega_Extensions_CheckboxWithHyperlink",
+  "type": "Field",
+  "subtype": "Boolean",
+  "icon": "images/pz-checkbox-active.svg",
+  "properties": [
+    {
+      "name": "preCaptionText",
+      "label": "Pre Custom Caption Text",
+      "description": "Text that appears before the link",
+      "format": "TEXT",
+      "defaultValue": "I agree to the",
+      "required": true
+    },
+    {
+      "name": "postCaptionText",
+      "label": "Post Custom Caption Text",
+      "description": "Text that appears post the link",
+      "format": "TEXT",
+      "defaultValue": "I agree to the",
+      "required": true
+    },
+    {
+      "name": "linkText",
+      "label": "Link Text",
+      "description": "Clickable text for the hyperlink",
+      "format": "TEXT",
+      "defaultValue": "Terms and Conditions",
+      "required": true
+    },
+    {
+      "name": "linkUrl",
+      "label": "Link URL",
+      "description": "URL to navigate to when link is clicked",
+      "format": "TEXT",
+      "defaultValue": "#",
+      "required": true
+    },
+    {
+      "name": "linkTarget",
+      "label": "Link Target",
+      "description": "Target attribute for the link (_blank, _self, _parent, _top)",
+      "format": "SELECT",
+      "defaultValue": "_blank",
+      "source": [
+        {
+          "key": "_blank",
+          "value": "New Window/Tab"
+        },
+        {
+          "key": "_self",
+          "value": "Same Window"
+        },
+        {
+          "key": "_parent",
+          "value": "Parent Frame"
+        },
+        {
+          "key": "_top",
+          "value": "Top Frame"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "label": "Field label",
+      "format": "TEXT"
+    },
+    {
+      "name": "hideLabel",
+      "label": "Hide Label",
+      "format": "BOOLEAN"
+    },
+    {
+      "name": "readOnly",
+      "label": "Edit mode",
+      "format": "READONLY"
+    },
+    {
+      "label": "Column settings",
+      "format": "GROUP",
+      "visibility": "@VIEWTYPE == 'MultiRecordDisplayAsTable'",
+      "properties": [
+        {
+          "name": "columnWidth",
+          "label": "Column width",
+          "format": "SELECT",
+          "source": [
+            {
+              "key": "auto",
+              "value": "Auto"
+            },
+            {
+              "key": "custom",
+              "value": "Custom"
+            }
+          ]
+        },
+        {
+          "name": "width",
+          "label": "Width (px)",
+          "format": "NUMBER",
+          "visibility": "$this.columnWidth == 'custom'"
+        }
+      ]
+    },
+    {
+      "label": "Input settings",
+      "format": "GROUP",
+      "visibility": "(!readOnly = true)",
+      "properties": [
+        {
+          "name": "caption",
+          "label": "Caption",
+          "format": "TEXT",
+          "useAsAuthoringLabel": true
+        },
+        {
+          "name": "helperText",
+          "label": "Helper text",
+          "format": "TEXT"
+        }
+      ]
+    },
+    {
+      "label": "Read-only settings",
+      "format": "GROUP",
+      "properties": [
+        {
+          "format": "SELECT",
+          "name": "displayValue",
+          "label": "Display Value",
+          "defaultValue": "Yes/No",
+          "localize": true,
+          "splitValues": {
+            "token": "/",
+            "propertyNames": ["trueLabel", "falseLabel"]
+          },
+          "source": [
+            {
+              "key": "Yes/No",
+              "value": "Yes/No"
+            },
+            {
+              "key": "True/False",
+              "value": "True/False"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Conditions",
+      "format": "GROUP",
+      "properties": [
+        {
+          "name": "required",
+          "label": "Required",
+          "format": "REQUIRED",
+          "visibility": "(!readOnly = true)"
+        },
+        {
+          "name": "disabled",
+          "label": "Disabled",
+          "format": "DISABLED",
+          "visibility": "(!readOnly = true)"
+        },
+        {
+          "name": "visibility",
+          "label": "Visibility",
+          "format": "VISIBILITY"
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "format": "GROUP",
+      "collapsible": true,
+      "properties": [
+        {
+          "name": "testId",
+          "label": "Test ID",
+          "format": "TEXT",
+          "ignorePattern": "[^-_\\p{N}\\p{L}]",
+          "includeAnnotations": false
+        }
+      ]
+    }
+  ],
+  "defaultConfig": {
+    "caption": "@L $this.label",
+    "trueLabel": "@L Yes",
+    "falseLabel": "@L No",
+    "detailFVLItem": true,
+    "isFormWidth" : true,
+    "isContainerWidth" : false
+    }
+}

@@ -1,3 +1,4 @@
+import './override.css';
 type PegaComponentsMUITableProps = {
     heading: string;
     NumCols: string;
@@ -10,6 +11,7 @@ type PegaComponentsMUITableProps = {
     disbursementDetailsDataPage: any;
     disbursementDetailsDPParams: string;
     commentsDataPage: any;
+    displayMode: 'Edit' | 'View';
 };
 declare const _default: (props: PegaComponentsMUITableProps) => JSX.Element;
 export default _default;
